@@ -25,7 +25,10 @@
             "scheme": "payloow",
             "host": "*"
           },
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -47,7 +50,8 @@
       ],
       "expo-secure-store",
       "expo-notifications",
-      "expo-video"
+      "expo-video",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
