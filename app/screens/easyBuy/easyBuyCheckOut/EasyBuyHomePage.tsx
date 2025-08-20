@@ -1,3 +1,25 @@
+import React from "react";
+
+const EasyBuyHomePage = () => {
+	return (
+		<></>
+	);
+};
+
+export default EasyBuyHomePage;
+
+// The following imports are commented out for future use
+// import Balance from "@/components/custom/profile/Balance";
+// import ModulesToggler from "@/components/custom/profile/ModulesToggler";
+// import BillIcon from "@/components/custom/utility/BillIcon";
+// import Screen from "@/components/custom/Screen";
+// import ServiceContainer from "@/components/custom/utility/ServiceContainer";
+// import { Colors } from "@/constants/Colors";
+// import { Entypo, Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
+// import { ServerContainer } from "@react-navigation/native";
+// import { StyleSheet, TouchableOpacity, View } from "react-native";
+// import List from "@/components/custom/list/List";
+// import AppText from "@/components/custom/AppText";
 // import Balance from "@/components/custom/profile/Balance";
 // import ModulesToggler from "@/components/custom/profile/ModulesToggler";
 // import BillIcon from "@/components/custom/utility/BillIcon";

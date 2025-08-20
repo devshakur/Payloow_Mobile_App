@@ -74,6 +74,7 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({
   );
 };
 
+
 // Hook to consume
 export const useProducts = (): ProductsContextType => {
   const context = useContext(ProductsContext);
@@ -82,3 +83,6 @@ export const useProducts = (): ProductsContextType => {
   }
   return context;
 };
+
+// Default export for route compatibility
+export default ProductsProvider;
