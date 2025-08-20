@@ -1,17 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { getSocket, initializeSocket } from "../../utils/utils";
+// Updated path after removing duplicate empty route file
+import { getSocket, initializeSocket } from "../../../utils/utils";
 
 const USER_STUDENT = "6887a5ee14dbebf50145a9b8";
 const USER_TUTOR = "6887b57f960e3c142c076dd3";

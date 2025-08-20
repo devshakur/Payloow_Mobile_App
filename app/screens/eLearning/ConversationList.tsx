@@ -2,7 +2,8 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useUser } from "../../context/UserProvider";
-import { getSocket, initializeSocket } from "../../utils/utils";
+// Updated path after removing duplicate empty utils file in app folder
+import { getSocket, initializeSocket } from "../../../utils/utils";
 
 interface Conversation {
   chatId: string;

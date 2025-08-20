@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { getSocket } from "../../../utils/utils";
+// Updated import path after removing duplicate empty utils route file
+import { getSocket } from "../../../../utils/utils";
 
 const TUTOR_ID = "6887b57f960e3c142c076dd3"; // Your Tutor ID
 

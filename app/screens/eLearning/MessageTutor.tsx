@@ -13,7 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { getSocket, initializeSocket } from "../../utils/utils";
+// Updated path: real socket utilities live at project root in `utils/utils.ts`
+import { getSocket, initializeSocket } from "../../../utils/utils";
 
 const CURRENT_USER_ID = "6887b57f960e3c142c076dd3"; // 👈 Replace with actual logged-in user id
 const RECEIVER_ID = "6887b57f960e3c142c076dd3"; // 👈 You can get this dynamically

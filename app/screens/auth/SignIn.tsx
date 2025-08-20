@@ -8,7 +8,6 @@ import ErrorMessage from "@/components/custom/forms/ErrorMessage";
 import SubmitButton from "@/components/custom/forms/SubmitButton";
 import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { FunctionComponent, useState } from "react";
 import {
@@ -88,16 +87,6 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
   return (
     <Screen backgroundColor={Colors.app.white}>
       <View style={styles.container}>
-        <View style={styles.heading}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            color={Colors.app.black}
-            size={20}
-            onPress={() => navigation.goBack()}
-          />
-
-          <AppText style={styles.skip}>Skip for Now</AppText>
-        </View>
         <View style={styles.content}>
           <AppForm
             initialValues={{ contact: "", password: "" }}
