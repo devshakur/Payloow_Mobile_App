@@ -2,7 +2,7 @@ import { useScreen } from "@/app/context/ScreenProvider";
 import { Colors } from "@/constants/Colors";
 import { Entypo, Feather, Foundation } from "@expo/vector-icons";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import React, { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { useUser } from "../../app/context/UserProvider";
 import AppButton from "./AppButton";
@@ -178,10 +178,16 @@ const CustomDrawerContent: FunctionComponent<DrawerContentComponentProps> = ({
 
   return (
     <View style={styles.drawerContent}>
-      <Image
-        style={styles.profileImage}
-        source={{ uri: user?.data.profilePicture || "" }}
-      />
+      {user?.data.profilePicture ? (
+        <Image
+          style={styles.profileImage}
+          source={{ uri: user.data.profilePicture }}
+        />
+      ) : (
+        <View style={styles.profileImagePlaceholder}>
+          <Feather name="user" size={60} color={Colors.app.primary} />
+        </View>
+      )}
 
       {/* <ButtonWithIcon
         icon={
@@ -359,6 +365,16 @@ const styles = StyleSheet.create({
     borderRadius: 70,
     borderWidth: 2,
     borderColor: Colors.app.primary,
+  },
+  profileImagePlaceholder: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 2,
+    borderColor: Colors.app.primary,
+    backgroundColor: Colors.app.screen,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modulesContainer: {
     // width: "100%",

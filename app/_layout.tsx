@@ -10,6 +10,7 @@ import {
   PaperProvider,
 } from "react-native-paper";
 import "react-native-reanimated";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import AuthContext from "./auth/context";
 import { FormProvider } from "./context/FormContext";
 import { ProductsProvider } from "./context/ProductsContext";
@@ -19,7 +20,6 @@ import { VariationProvider } from "./context/VariationPlansProvider";
 import AuthNavigator from "./navigations/AuthNavigator";
 import MainDrawerNavigator from "./navigations/MainDrawerNavigator";
 
-// ✅ Prevent auto-hide before loading
 SplashScreen.preventAutoHideAsync();
 
 interface User {
@@ -38,23 +38,22 @@ export default function RootLayout() {
 
   const [fontsLoaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    DMSans: require("../assets/fonts/DMSans-Regular.ttf"), 
   });
 
-  // ✅ Setup theme
   const theme = {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      primary: Colors.app.primary, // your app brand color
-      background: Colors.app.screen, // use your screen background color
+      primary: Colors.app.primary,
+      background: Colors.app.screen,
     },
   };
 
-  // ✅ Load fonts and hide splash screen properly
   useEffect(() => {
     const prepareApp = async () => {
       if (fontsLoaded) {
-        await new Promise((res) => setTimeout(res, 2000)); // optional splash delay
+        await new Promise((res) => setTimeout(res, 2000)); 
         await SplashScreen.hideAsync();
         setAppReady(true);
       }
@@ -67,30 +66,31 @@ export default function RootLayout() {
 
   return (
     <NavigationIndependentTree>
-      <AuthContext.Provider value={{ user, setUser }}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          {/* 👇 Wrap everything inside PaperProvider */}
-          <PaperProvider theme={theme}>
-            {user ? (
-              <ScreenProvider>
+      <SafeAreaProvider>
+        <AuthContext.Provider value={{ user, setUser }}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <PaperProvider theme={theme}>
+              {user ? (
+                <ScreenProvider>
+                  <UserProvider>
+                    <VariationProvider>
+                      <ProductsProvider>
+                        <MainDrawerNavigator />
+                      </ProductsProvider>
+                    </VariationProvider>
+                  </UserProvider>
+                </ScreenProvider>
+              ) : (
                 <UserProvider>
-                  <VariationProvider>
-                    <ProductsProvider>
-                      <MainDrawerNavigator />
-                    </ProductsProvider>
-                  </VariationProvider>
+                  <FormProvider>
+                    <AuthNavigator />
+                  </FormProvider>
                 </UserProvider>
-              </ScreenProvider>
-            ) : (
-              <UserProvider>
-                <FormProvider>
-                  <AuthNavigator />
-                </FormProvider>
-              </UserProvider>
-            )}
-          </PaperProvider>
-        </GestureHandlerRootView>
-      </AuthContext.Provider>
+              )}
+            </PaperProvider>
+          </GestureHandlerRootView>
+        </AuthContext.Provider>
+      </SafeAreaProvider>
     </NavigationIndependentTree>
   );
 }

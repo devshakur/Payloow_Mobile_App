@@ -6,9 +6,9 @@ import List from "@/components/custom/list/List";
 import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
 import {
-  FontAwesome6,
-  MaterialCommunityIcons,
-  SimpleLineIcons,
+    FontAwesome6,
+    MaterialCommunityIcons,
+    SimpleLineIcons,
 } from "@expo/vector-icons";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import * as ImagePicker from "expo-image-picker";
@@ -184,10 +184,16 @@ const Profile: FunctionComponent<ProfileProps> = ({ navigation }) => {
             </View>
           </View>
           <View style={styles.content}>
-            <Image
-              style={styles.profileImage}
-              source={{ uri: user?.data.profilePicture || "" }}
-            />
+            {user?.data.profilePicture ? (
+              <Image
+                style={styles.profileImage}
+                source={{ uri: user.data.profilePicture }}
+              />
+            ) : (
+              <View style={styles.profileImagePlaceholder}>
+                <MaterialCommunityIcons name="account" size={60} color={Colors.app.primary} />
+              </View>
+            )}
 
             <MaterialCommunityIcons
               name="camera"
@@ -394,6 +400,16 @@ const styles = StyleSheet.create({
     borderRadius: 70,
     borderWidth: 2,
     borderColor: Colors.app.primary,
+  },
+  profileImagePlaceholder: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 2,
+    borderColor: Colors.app.primary,
+    backgroundColor: Colors.app.screen,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cameraIcon: {
     position: "absolute",

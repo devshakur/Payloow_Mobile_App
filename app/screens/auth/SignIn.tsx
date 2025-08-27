@@ -9,7 +9,7 @@ import SubmitButton from "@/components/custom/forms/SubmitButton";
 import { Colors } from "@/constants/Colors";
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent, useCallback, useState } from "react";
+import { FunctionComponent, useCallback, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Yup from "yup";
 // Decorative SVG assets (existing in assets/images/custom/svg)
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
@@ -64,6 +65,7 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
   const handleSubmit = useCallback(
     async ({ contact, password }: { contact: string; password: string }) => {
@@ -95,9 +97,10 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
   return (
   
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={false}
       >
         {/* Decorative, non-interactive background graphics */}
         <View style={styles.backgroundGraphics} pointerEvents="none">
@@ -212,7 +215,8 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 8,
+    paddingTop: 0,
+    paddingBottom: 8,
     justifyContent: "flex-start",
     backgroundColor: Colors.app.white,
   },

@@ -1,6 +1,8 @@
 // import Balance from "@/components/custom/profile/Balance";
 // import ModulesToggler from "@/components/custom/profile/ModulesToggler";
-// import BillIcon from "@/components/custom/utility/BillIcon";
+// import BillIcon from "@/components/custom/utility/BillIc// });
+
+export default () => null;;
 // import Screen from "@/components/custom/Screen";
 // import ServiceContainer from "@/components/custom/utility/ServiceContainer";
 // import { Colors } from "@/constants/Colors";

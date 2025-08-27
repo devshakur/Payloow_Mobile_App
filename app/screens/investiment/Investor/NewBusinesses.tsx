@@ -1,3 +1,8 @@
+import CreateBusiness from "@/components/custom/investiment/CreateBusiness";
+import Invest from "@/components/custom/investiment/Invest";
+import LoanBusinessCard from "@/components/custom/investiment/LoanBusinessCard";
+import Screen from "@/components/custom/Screen";
+import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -8,14 +13,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CreateBusiness from "../../../components/custom/investiment/CreateBusiness";
-import Invest from "../../../components/custom/investiment/Invest";
-import LoanBusinessCard from "../../../components/custom/investiment/LoanBusinessCard";
-import Screen from "../../../components/custom/Screen";
-import { Colors } from "../../../constants/Colors";
-import investment from "../../api/investment";
-import { useUser } from "../../context/UserProvider";
-import { Business } from "./Request";
+import investment from "../../../api/investment";
+import { useUser } from "../../../context/UserProvider";
+import { Business } from "../Request";
 
 const BusinessesWithLoans = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);

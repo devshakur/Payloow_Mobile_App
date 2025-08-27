@@ -12,8 +12,9 @@ import SuccessModal from "@/components/custom/SuccessModal";
 import { Colors } from "@/constants/Colors";
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent, useMemo, useState } from "react";
+import { FunctionComponent, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Yup from "yup";
 // Decorative SVG assets
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
@@ -61,6 +62,7 @@ const SetNewPassword: FunctionComponent<SetNewPasswordProps> = ({ navigation }) 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const insets = useSafeAreaInsets();
 
   // Enabled when password filled and OTP length is 5
   const enabled = useMemo(() => password.length > 0 && otpVal.length === 5, [password, otpVal]);
@@ -91,9 +93,10 @@ const SetNewPassword: FunctionComponent<SetNewPasswordProps> = ({ navigation }) 
 
   return (
     <ScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
+      nestedScrollEnabled={false}
     >
       {/* Background shapes */}
       <View style={styles.backgroundGraphics} pointerEvents="none">
@@ -190,7 +193,8 @@ const SetNewPassword: FunctionComponent<SetNewPasswordProps> = ({ navigation }) 
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 8,
+    paddingTop: 0,
+    paddingBottom: 8,
     justifyContent: 'flex-start',
     backgroundColor: Colors.app.white,
   },

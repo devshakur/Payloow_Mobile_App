@@ -18,8 +18,9 @@ import SetProfilePicture from "@/components/custom/profileSetup/SetProfilePictur
 import { Colors } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 // Decorative SVG assets
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
 import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
@@ -68,6 +69,7 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
   const [customerCode, setCustomerCode] = useState<string>();
   const { formValues } = useForm();
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
   const getToken = async (contact: string, password: string) => {
     try {
@@ -305,9 +307,10 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
 
   return (
     <ScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
+      nestedScrollEnabled={false}
     >
       {/* Background decorative shapes */}
       <View style={styles.backgroundGraphics} pointerEvents="none">
@@ -375,7 +378,8 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 8,
+    paddingTop: 0,
+    paddingBottom: 8,
     justifyContent: 'flex-start',
     backgroundColor: Colors.app.white,
   },

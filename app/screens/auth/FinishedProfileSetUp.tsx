@@ -6,8 +6,9 @@ import SVGComponent from "@/components/custom/SVGComponent";
 import { Colors } from "@/constants/Colors";
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
 import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
 import loow from "../../../assets/images/custom/svg/loow.svg";
@@ -24,12 +25,14 @@ type RootStackParamList = {
 const FinishedProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
   const { formValues } = useForm();
   const displayName = `${formValues.firstName || ''} ${formValues.lastName || ''}`.trim();
+  const insets = useSafeAreaInsets();
 
   return (
     <ScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 32 }]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
+      nestedScrollEnabled={false}
     >
       {/* Decorative background graphics */}
       <View style={styles.backgroundGraphics} pointerEvents="none">
@@ -90,7 +93,8 @@ const FinishedProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 32,
+    paddingTop: 0,
+    paddingBottom: 32,
     backgroundColor: Colors.app.white,
     alignItems: 'center'
   },

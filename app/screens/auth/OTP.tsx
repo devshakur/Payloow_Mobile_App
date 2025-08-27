@@ -8,15 +8,16 @@ import SubmitButton from "@/components/custom/forms/SubmitButton";
 import { Colors } from "@/constants/Colors";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent, useRef, useState } from "react";
+import { FunctionComponent, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Yup from "yup";
 // Decorative SVG assets
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
@@ -43,6 +44,7 @@ const OTP: FunctionComponent<OTPProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [otpVal, setOtpVal] = useState("");
   const { setFormValues } = useForm();
+  const insets = useSafeAreaInsets();
 
   const handleSubmit = async ({ otp }: { otp: string }) => {
     setLoading(true);
@@ -60,9 +62,10 @@ const OTP: FunctionComponent<OTPProps> = ({ navigation }) => {
 
   return (
     <ScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
+      nestedScrollEnabled={false}
     >
       {/* Background shapes */}
       <View style={styles.backgroundGraphics} pointerEvents="none">
@@ -136,7 +139,8 @@ const OTP: FunctionComponent<OTPProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 8,
+    paddingTop: 0,
+    paddingBottom: 8,
     justifyContent: 'flex-start',
     backgroundColor: Colors.app.white,
   },

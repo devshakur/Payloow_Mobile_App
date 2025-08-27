@@ -11,3 +11,5 @@
 // export const getSocket = (): Socket => {
 //   return socket;
 // };
+
+export default () => null;

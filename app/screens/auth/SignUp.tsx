@@ -12,9 +12,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from "@/constants/Colors";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Checkbox } from "expo-checkbox";
-import React, { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Yup from "yup";
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
 import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
@@ -48,6 +49,7 @@ interface SignUpProps {
 const SignUp: FunctionComponent<SignUpProps> = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const insets = useSafeAreaInsets();
 
   // Toggle password visibility
   const togglePasswordVisibility = () => {
@@ -68,7 +70,7 @@ const SignUp: FunctionComponent<SignUpProps> = ({ navigation }) => {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
       enableOnAndroid={true}
@@ -76,6 +78,7 @@ const SignUp: FunctionComponent<SignUpProps> = ({ navigation }) => {
       extraScrollHeight={50}
       resetScrollToCoords={{ x: 0, y: 0 }}
       scrollEnabled={true}
+      nestedScrollEnabled={false}
     >
       {/* Decorative, non-interactive background graphics */}
       <View style={styles.backgroundGraphics} pointerEvents="none">
@@ -288,7 +291,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 8,
+    paddingTop: 0,
+    paddingBottom: 8,
     justifyContent: 'flex-start',
     backgroundColor: Colors.app.white,
   },

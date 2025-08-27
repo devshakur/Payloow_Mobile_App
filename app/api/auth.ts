@@ -1,7 +1,21 @@
+import { isEmail, normalizeNigerianPhone } from "@/app/utils/phone";
 import client from "./client";
 
-const login = (contact: string, password: string) =>
-  client.post("/v1/login", { phone: contact, password });
+// Detect email vs phone and normalize phone to canonical 234XXXXXXXXXX
+const login = (contact: string, password: string) => {
+  const raw = (contact || "").trim();
+
+  if (isEmail(raw)) {
+    return client.post("/v1/login", { email: raw, password });
+  }
+
+  const normalizedPhone = normalizeNigerianPhone(raw);
+  if (normalizedPhone) {
+    return client.post("/v1/login", { phone: normalizedPhone, password });
+  }
+  // Last resort: attempt with raw digits (backend may validate)
+  return client.post("/v1/login", { phone: raw.replace(/[^0-9]/g, ""), password });
+};
 
 const setPin = (pin: string) => client.post("/v1/set-transaction-pin", { pin });
 const changePin = (currentPin: string, newPin: string) =>

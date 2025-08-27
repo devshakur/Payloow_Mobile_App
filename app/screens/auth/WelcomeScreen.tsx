@@ -4,12 +4,15 @@ import Done from "@/components/custom/Done";
 import { Colors } from "@/constants/Colors";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
 import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
 
 const WelcomeScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 40 }]} showsVerticalScrollIndicator={false} nestedScrollEnabled={false}>
       {/* Decorative background graphics */}
       <View style={styles.backgroundGraphics} pointerEvents="none">
         <View style={styles.topShapeWrapper}>
@@ -58,7 +61,8 @@ const WelcomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 40,
+    paddingTop: 0,
+    paddingBottom: 40,
     alignItems: 'center',
     backgroundColor: Colors.app.white,
   },
