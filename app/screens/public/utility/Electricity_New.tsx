@@ -8,7 +8,7 @@ import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import * as Yup from "yup";
 

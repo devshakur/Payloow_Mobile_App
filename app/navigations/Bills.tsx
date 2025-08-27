@@ -1,6 +1,5 @@
 // UtilityNavigator.tsx
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React from "react";
 import Notifications from "../screens/public/Notifications";
 import SuccessScreen from "../screens/public/SuccessScreen";
 import TransactionDetail from "../screens/public/TransactionDetail";

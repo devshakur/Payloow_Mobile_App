@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "expo-status-bar";
 import { FunctionComponent } from "react";
 import { CourseType } from "../../components/custom/eLearning/StudentCourse";
 import CartDetail from "../screens/easyBuy/easyBuyCheckOut/CartDetail";
@@ -43,37 +44,38 @@ type RootStackParamList = {
   ConversationList: undefined;
 };
 
-interface HomeNavigatorProps {}
-
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const HomeNavigator: FunctionComponent<HomeNavigatorProps> = () => {
+const HomeNavigator: FunctionComponent = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="HomePage" component={HomePage} />
-      <Stack.Screen
-        name="Bills"
-        component={Bills}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="CartDetail" component={CartDetail} />
-      <Stack.Screen name="EasyBuyCheckOut" component={EasyBuyCheckOut} />
-      <Stack.Screen name="InstallmentPlan" component={InstallmentPlan} />
-      <Stack.Screen
-        name="ProductDetailWithCompare"
-        component={ProductDetailWithCompare}
-      />
-      <Stack.Screen name="ProductDetail" component={ProductDetail} />
-      <Stack.Screen
-        name="CompareFeatureScreen"
-        component={CompareFeatureScreen}
-      />
-      <Stack.Screen name="ChatScreen" component={ChatScreen} />
-      <Stack.Screen name="CourseCardDetail" component={CourseCardDetail} />
-      <Stack.Screen name="CourseDetailPage" component={CourseDetailPage} />
-      <Stack.Screen name="ConversationList" component={ConversationList} />
-      <Stack.Screen name="MessageDetail" component={MessageDetail} />
-    </Stack.Navigator>
+    <>
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="HomePage" component={HomePage} />
+        <Stack.Screen
+          name="Bills"
+          component={Bills}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="CartDetail" component={CartDetail} />
+        <Stack.Screen name="EasyBuyCheckOut" component={EasyBuyCheckOut} />
+        <Stack.Screen name="InstallmentPlan" component={InstallmentPlan} />
+        <Stack.Screen
+          name="ProductDetailWithCompare"
+          component={ProductDetailWithCompare}
+        />
+        <Stack.Screen name="ProductDetail" component={ProductDetail} />
+        <Stack.Screen
+          name="CompareFeatureScreen"
+          component={CompareFeatureScreen}
+        />
+        <Stack.Screen name="ChatScreen" component={ChatScreen} />
+        <Stack.Screen name="CourseCardDetail" component={CourseCardDetail} />
+        <Stack.Screen name="CourseDetailPage" component={CourseDetailPage} />
+        <Stack.Screen name="ConversationList" component={ConversationList} />
+        <Stack.Screen name="MessageDetail" component={MessageDetail} />
+      </Stack.Navigator>
+    </>
   );
 };
 
