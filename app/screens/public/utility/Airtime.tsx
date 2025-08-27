@@ -363,25 +363,18 @@
 
 import routes from "@/app/navigations/routes";
 import AppText from "@/components/custom/AppText";
+import AppForm from "@/components/custom/forms/AppForm";
+import AppFormField from "@/components/custom/forms/AppFormField";
+import AppFormSelectDropDown from "@/components/custom/forms/AppFormPicker";
+import SubmitButton from "@/components/custom/forms/SubmitButton";
 import GridPicker from "@/components/custom/GridPicker";
-import SVGComponent from "@/components/custom/SVGComponent";
+import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  Card,
-  HelperText,
-  Modal,
-  Portal,
-  TextInput,
-} from "react-native-paper";
-import ninemobile from "../../../../assets/images/custom/svg/9mobile.svg";
-import airtel from "../../../../assets/images/custom/svg/airtel.svg";
-import glo from "../../../../assets/images/custom/svg/glo.svg";
-import mtn from "../../../../assets/images/custom/svg/mtn.svg";
+import { FunctionComponent, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import * as Yup from "yup";
 
 type RootStackParamList = {
   AirtimeSummary: {
@@ -396,175 +389,172 @@ interface AirtimeProps {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 }
 
+const validationSchema = Yup.object().shape({
+  phone: Yup.string()
+    .required("Phone number is required")
+    .matches(/^(\+234|0)[0-9]{10}$/, "Enter a valid Nigerian phone number"),
+  amount: Yup.number()
+    .required("Amount is required")
+    .min(50, "Minimum amount is ₦50")
+    .max(5000, "Maximum amount is ₦5000"),
+  network: Yup.string().required("Please select a network"),
+});
+
 const Airtime: FunctionComponent<AirtimeProps> = ({ navigation }) => {
-  const [visible, setVisible] = useState(true); // show modal immediately
-  const [phone, setPhone] = useState("");
-  const [amount, setAmount] = useState("");
-  const [network, setNetwork] = useState("");
+  const [selectedAmount, setSelectedAmount] = useState<string>("");
 
   const networks = [
-    { title: "MTN", icon: mtn, value: "mtn" },
-    { title: "Airtel", icon: airtel, value: "airtel" },
-    { title: "Glo", icon: glo, value: "glo" },
-    { title: "9Mobile", icon: ninemobile, value: "9mobile" },
+    { label: "MTN", value: "mtn" },
+    { label: "Airtel", value: "airtel" },
+    { label: "Glo", value: "glo" },
+    { label: "9Mobile", value: "9mobile" },
   ];
 
-  const hasErrors = (field: string) => {
-    if (field === "amount")
-      return parseInt(amount) < 50 || parseInt(amount) > 5000;
-    if (field === "phone") return phone.length !== 10; // now only last 10 digits matter
-    return false;
-  };
-
-  const handleSubmit = () => {
-    setVisible(false);
-    navigation.navigate(routes.AIRTIME_SUMMARY, { phone, amount, network });
+  const handleSubmit = ({
+    phone,
+    amount,
+    network,
+  }: {
+    phone: string;
+    amount: string;
+    network: string;
+  }) => {
+    navigation.navigate(routes.AIRTIME_SUMMARY, {
+      network,
+      phone,
+      amount,
+    });
   };
 
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        contentContainerStyle={styles.modalContainer}
-      >
-        <Card style={styles.card}>
-          <Card.Title
-            title="Buy Airtime"
-            left={(props) => (
-              <MaterialCommunityIcons
-                name="arrow-left"
-                size={24}
-                color={Colors.app.dark}
-              />
-            )}
-            titleStyle={styles.title}
-          />
-          <Card.Content>
-            {/* Network Picker */}
+    <Screen backgroundColor={Colors.app.screen}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={24}
+              color={Colors.app.dark}
+            />
+          </TouchableOpacity>
+          <AppText style={styles.title}>Buy Airtime</AppText>
+          <TouchableOpacity onPress={() => navigation.navigate(routes.TRANSACTIONS)}>
+            <AppText style={styles.history}>History</AppText>
+          </TouchableOpacity>
+        </View>
+
+        <AppForm
+          initialValues={{
+            phone: "",
+            amount: selectedAmount,
+            network: "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          <View style={styles.formContainer}>
             <View style={styles.section}>
               <AppText style={styles.label}>Select Network</AppText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.networkRow}
-              >
-                {networks.map((item, index) => (
-                  <Button
-                    key={index}
-                    mode={network === item.value ? "contained" : "outlined"}
-                    style={styles.networkBtn}
-                    onPress={() => setNetwork(item.value)}
-                  >
-                    <SVGComponent width={28} height={22} SvgFile={item.icon} />
-                  </Button>
-                ))}
-              </ScrollView>
-            </View>
-
-            {/* Phone Input */}
-            <View style={styles.section}>
-              <AppText style={styles.label}>Beneficiary Number</AppText>
-              <TextInput
-                mode="outlined"
-                value={"+234" + phone}
-                keyboardType="phone-pad"
-                placeholder="Enter phone number"
-                left={<TextInput.Icon icon="phone" />}
-                onChangeText={(text) => {
-                  // Strip out "+234" if user tries to delete or edit it
-                  let cleaned = text.replace(/^\+234/, "");
-                  // Keep only numbers
-                  cleaned = cleaned.replace(/\D/g, "");
-                  setPhone(cleaned);
-                }}
+              <AppFormSelectDropDown
+                name="network"
+                items={networks}
               />
-              <HelperText type="error" visible={hasErrors("phone")}>
-                Phone number must be 10 digits (after +234)
-              </HelperText>
             </View>
 
-            {/* Amount Input */}
+            <View style={styles.section}>
+              <AppText style={styles.label}>Phone Number</AppText>
+              <AppFormField
+                name="phone"
+                placeholder="Enter phone number"
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+              />
+            </View>
+
             <View style={styles.section}>
               <AppText style={styles.label}>Amount</AppText>
-              <TextInput
-                mode="outlined"
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
+              <AppFormField
+                name="amount"
                 placeholder="Enter amount"
-                left={<TextInput.Icon icon="currency-ngn" />}
+                keyboardType="numeric"
+                value={selectedAmount}
+                onChangeText={setSelectedAmount}
               />
-              <HelperText type="error" visible={hasErrors("amount")}>
-                Amount must be between ₦50 - ₦5000
-              </HelperText>
             </View>
 
-            {/* Quick Amount Picker */}
+            <View style={styles.section}>
+              <AppText style={styles.label}>Quick Select</AppText>
+              <GridPicker
+                returnValue={(amount) => setSelectedAmount(amount.toString())}
+                itemStyle={{ width: 70, height: 45 }}
+                containerStyle={{ gap: 12 }}
+                amounts={[100, 200, 500, 1000, 2000, 5000]}
+              />
+            </View>
 
-            <AppText style={styles.label}>Quick Pick</AppText>
-            <GridPicker
-              returnValue={(item) => setAmount(item.toString())}
-              itemStyle={{ width: 70, height: 45 }}
-              containerStyle={{ gap: 12 }}
-              amounts={[100, 200, 500, 1000]}
+            <SubmitButton
+              title="Continue"
+              btnContainerStyle={styles.submitButton}
+              titleStyle={styles.submitButtonText}
             />
-          </Card.Content>
-
-          <Card.Actions style={styles.actions}>
-            <Button
-              mode="contained"
-              onPress={handleSubmit}
-              disabled={
-                !phone ||
-                !amount ||
-                !network ||
-                hasErrors("phone") ||
-                hasErrors("amount")
-              }
-            >
-              Pay
-            </Button>
-          </Card.Actions>
-        </Card>
-      </Modal>
-    </Portal>
+          </View>
+        </AppForm>
+      </View>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    margin: 16,
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  card: {
-    borderRadius: 16,
-    paddingBottom: 10,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 30,
+  },
+  backButton: {
+    padding: 8,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
+    color: Colors.app.dark,
+    textAlign: "center",
+    flex: 1,
+  },
+  history: {
+    color: Colors.app.primary,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  formContainer: {
+    flex: 1,
+    gap: 20,
   },
   section: {
-    marginBottom: 2,
+    marginBottom: 10,
   },
-
   label: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
-    marginBottom: 6,
     color: Colors.app.dark,
+    marginBottom: 8,
   },
-  networkRow: {
-    flexDirection: "row",
-    gap: 2,
+  submitButton: {
+    backgroundColor: Colors.app.primary,
+    marginTop: 20,
   },
-  networkBtn: {
-    borderRadius: 5,
-    marginRight: 5,
-  },
-  actions: {
-    justifyContent: "flex-end",
-    marginTop: 10,
+  submitButtonText: {
+    color: Colors.app.white,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
