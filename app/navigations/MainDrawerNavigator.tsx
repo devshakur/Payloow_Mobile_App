@@ -1,6 +1,6 @@
 import CustomDrawerContent from "@/components/custom/CustomDrawerContent";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { useScreen } from "../context/ScreenProvider";
 import BillsHomeNavigator from "./BillsHomeNavigator";
 import BuyerHomeNavigator from "./BuyerHomeNavigator";
@@ -11,11 +11,9 @@ import PartnerHomeNavigator from "./PartnerHomeNavigator";
 import StudentHomeNavigator from "./StudentHomeNavigator";
 import TutorHomeNavigator from "./TutorHomeNavigator";
 
-interface MainDrawerNavigatorProps {}
-
 const LeftDrawer = createDrawerNavigator();
 
-const MainDrawerNavigator: FunctionComponent<MainDrawerNavigatorProps> = () => {
+const MainDrawerNavigator: FunctionComponent<object> = () => {
   const { dashboard } = useScreen();
 
   return (

@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { Wallet } from "iconsax-react-native";
-import React, { useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import AppText from "../AppText";
 
 // Dummy Business Data
@@ -70,7 +70,7 @@ const BusinessCard = ({ business }: { business: Business }) => {
               {
                 color: business.isOpen
                   ? Colors.app.success
-                  : Colors.app.warning,
+                  : Colors.app.failed,
               },
             ]}
           >
@@ -95,15 +95,17 @@ const BusinessCard = ({ business }: { business: Business }) => {
 const FeaturedBusinessDummy = () => {
   return (
     <View style={styles.container}>
-      <FlatList
-        data={dummyBusinesses}
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item._id}
         contentContainerStyle={{ paddingHorizontal: 12 }}
-        ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-        renderItem={({ item }) => <BusinessCard business={item} />}
-      />
+      >
+        {dummyBusinesses.map((business, index) => (
+          <View key={business._id} style={{ marginRight: index < dummyBusinesses.length - 1 ? 12 : 0 }}>
+            <BusinessCard business={business} />
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -129,7 +131,7 @@ const cardStyles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: "700", color: Colors.app.dark },
   subtitle: { fontSize: 12, color: Colors.app.light, marginTop: 2 },
   tooltip: {
-    backgroundColor: Colors.app.grayDark,
+    backgroundColor: Colors.app.gray,
     padding: 8,
     borderRadius: 10,
     marginBottom: 10,

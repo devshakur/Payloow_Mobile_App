@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Yup from "yup";
-// Decorative SVG assets (existing in assets/images/custom/svg)
+
 import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
 import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
 

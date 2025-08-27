@@ -3,7 +3,7 @@ import routes from "@/app/navigations/routes";
 import SkeletonProductCard from "@/components/SkeletonProductCard";
 import { Colors } from "@/constants/Colors";
 import { FunctionComponent } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import easyBuy from "../../../app/api/easyBuy";
 import { Product } from "../../../app/screens/easyBuy/buyer/BuyerDashboard";
 import AutoScrollRow from "./AutoScrollRow";
@@ -46,15 +46,16 @@ const FeatureProduct: FunctionComponent<FeatureProductProps> = ({
   return (
     <View style={styles.container}>
       {!products || products.length === 0 ? (
-        // 👉 Use FlatList (not ScrollView) for skeletons to avoid VirtualizedList nesting errors
-        <FlatList
-          data={[1, 2, 3, 4]}
-          keyExtractor={(item) => item.toString()}
+        // Use ScrollView instead of FlatList to avoid VirtualizedList nesting
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={() => <SkeletonProductCard />}
           contentContainerStyle={{ paddingHorizontal: 8 }}
-        />
+        >
+          {[1, 2, 3, 4].map((item) => (
+            <SkeletonProductCard key={item.toString()} />
+          ))}
+        </ScrollView>
       ) : (
         <AutoScrollRow
           products={products}
