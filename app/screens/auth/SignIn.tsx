@@ -1,0 +1,537 @@
+// import authApi from "@/app/api/auth";
+// import useAuth from "@/app/auth/useAuth";
+// import routes from "@/app/navigations/routes";
+// import AppText from "@/components/custom/AppText";
+// import AppForm from "@/components/custom/forms/AppForm";
+// import AppFormField from "@/components/custom/forms/AppFormField";
+// import ErrorMessage from "@/components/custom/forms/ErrorMessage";
+// import SubmitButton from "@/components/custom/forms/SubmitButton";
+// import Screen from "@/components/custom/Screen";
+// import { Colors } from "@/constants/Colors";
+// import { MaterialCommunityIcons } from "@expo/vector-icons";
+// import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+// import React, { FunctionComponent, useState } from "react";
+// import {
+//   ActivityIndicator,
+//   StyleSheet,
+//   TouchableOpacity,
+//   View,
+// } from "react-native";
+// import * as Yup from "yup";
+
+// const validationSchema = Yup.object().shape({
+//   contact: Yup.string()
+//     .test(
+//       "email-or-phone",
+//       "Enter a valid email or phone number",
+//       (
+//         value = "" // Default to an empty string if undefined
+//       ) =>
+//         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || // Email regex
+//         /^\d{10,15}$/.test(value) // Phone regex (10-15 digits)
+//     )
+//     .required("Email or phone number is required"),
+//   password: Yup.string().required().min(4).label("Password"),
+// });
+
+// type RootStackParamList = {
+//   SignIn: undefined;
+//   ResetPassword: undefined;
+//   SignUp: undefined;
+// };
+
+// interface SignInProps {
+//   navigation: NativeStackNavigationProp<RootStackParamList>;
+// }
+
+// interface AuthResponse {
+//   message: string;
+//   data: {
+//     auth: string;
+//     verified: boolean;
+//   };
+//   success: boolean;
+// }
+
+// const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
+//   const auth = useAuth();
+//   const [passwordVisible, setPasswordVisible] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+//   const handleSubmit = async ({
+//     contact,
+//     password,
+//   }: {
+//     contact: string;
+//     password: string;
+//   }) => {
+//     setLoading(true);
+//     const result = await authApi.login(contact, password);
+//     const responseData = result.data as AuthResponse;
+
+//     if (!result.ok) {
+//       setErrorMessage("Incorrect Email or Password");
+//       return setLoading(false);
+//     }
+//     setLoading(false);
+
+//     auth.logIn(responseData);
+//   };
+
+//   const togglePasswordVisibility = () => {
+//     setPasswordVisible(!passwordVisible);
+//   };
+
+//   return (
+//     <Screen backgroundColor={Colors.app.white}>
+//       <View style={styles.container}>
+//         <View style={styles.heading}>
+//           <MaterialCommunityIcons
+//             name="arrow-left"
+//             color={Colors.app.black}
+//             size={20}
+//             onPress={() => navigation.goBack()}
+//           />
+
+//           <AppText style={styles.skip}>Skip for Now</AppText>
+//         </View>
+//         <View style={styles.content}>
+//           <AppForm
+//             initialValues={{ contact: "", password: "" }}
+//             validationSchema={validationSchema}
+//             onSubmit={handleSubmit}
+//           >
+//             <View style={styles.errorContainer}>
+//               {errorMessage && (
+//                 <ErrorMessage
+//                   error={errorMessage}
+//                   visible={Boolean(errorMessage)}
+//                 />
+//               )}
+//             </View>
+//             <View style={styles.formFields}>
+//               <View style={styles.field}>
+//                 <AppText style={styles.label}>Phone number</AppText>
+//                 <AppFormField
+//                   autoCapitalize="none"
+//                   autoCorrect={false}
+//                   keyboardType="email-address"
+//                   name="contact"
+//                   placeholder="Email or Phone"
+//                   textContentType="emailAddress"
+//                 />
+//               </View>
+//               <View style={styles.field}>
+//                 <AppText style={styles.label}>Password</AppText>
+//                 <AppFormField
+//                   autoCapitalize="none"
+//                   autoCorrect={false}
+//                   icon="lock"
+//                   name="password"
+//                   placeholder="Password"
+//                   secureTextEntry={!passwordVisible}
+//                   textContentType="password"
+//                   passwordVisible={passwordVisible}
+//                   togglePasswordVisibility={togglePasswordVisibility}
+//                 />
+//               </View>
+//               <TouchableOpacity
+//                 style={styles.resetContainer}
+//                 onPress={() => navigation.navigate(routes.RESET_PASSWORD)}
+//               >
+//                 <AppText style={styles.forgotPassword}>
+//                   Forgot Password?
+//                 </AppText>
+//               </TouchableOpacity>
+//             </View>
+//             <SubmitButton
+//               btnContainerStyle={[
+//                 styles.btn,
+//                 {
+//                   backgroundColor: loading
+//                     ? Colors.app.loading
+//                     : Colors.app.primary,
+//                 },
+//               ]}
+//               titleStyle={styles.btnTitleStyle}
+//               title="Log In"
+//               loading={loading}
+//               disabled={loading}
+//               loadingAnimation={
+//                 <ActivityIndicator size="small" color={Colors.app.white} />
+//               }
+//             />
+//           </AppForm>
+//           <View style={styles.bottomContainer}>
+//             <AppText style={styles.bottomText}>
+//               Already have an account?
+//             </AppText>
+//             <TouchableOpacity>
+//               <TouchableOpacity
+//                 onPress={() => navigation.navigate(routes.SIGNUP)}
+//               >
+//                 <AppText style={styles.siginInText}> Register</AppText>
+//               </TouchableOpacity>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       </View>
+//     </Screen>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     width: "100%",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     flexDirection: "column",
+//     gap: 36,
+//     marginTop: 10,
+//   },
+//   heading: {
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     flexDirection: "row",
+//     width: "90%",
+//   },
+//   errorContainer: {
+//     width: "90%",
+//     marginBottom: -30,
+//   },
+//   skip: {
+//     color: Colors.app.primary,
+//     fontFamily: "DM Sans",
+//     fontSize: 14,
+//     fontWeight: "400",
+//     fontStyle: "normal",
+//     lineHeight: 20,
+//     textAlign: "center",
+//   },
+//   label: {
+//     fontFamily: "DM Sans",
+//     fontSize: 14,
+//     fontWeight: "600",
+//     height: 20,
+//     color: Colors.app.dark,
+//     alignSelf: "flex-start",
+//   },
+//   field: {
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     flexDirection: "column",
+//     height: 66,
+//   },
+//   formFields: {
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     flexDirection: "column",
+//     width: "90%",
+//     gap: 16,
+//   },
+//   forgotPassword: {
+//     fontSize: 14,
+//     fontFamily: "Inter",
+//     fontWeight: "400",
+//     color: Colors.app.primary,
+//     alignSelf: "flex-end",
+//   },
+//   resetContainer: {
+//     alignSelf: "flex-end",
+//   },
+//   btn: {
+//     backgroundColor: Colors.app.primary,
+//     width: "90%",
+//     color: Colors.app.white,
+//   },
+//   btnTitleStyle: {
+//     fontFamily: "DM Sans",
+//     color: Colors.app.white,
+//     fontWeight: "400",
+//     lineHeight: 20,
+//   },
+//   content: {
+//     width: "100%",
+//     height: "100%",
+//     alignContent: "center",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     gap: 30,
+//   },
+//   bottomContainer: {
+//     alignItems: "center",
+//     justifyContent: "center",
+//     flexDirection: "row",
+//     width: "90%",
+//   },
+//   bottomText: {
+//     fontFamily: "DM Sans",
+//     fontSize: 14,
+//     fontWeight: "400",
+//     color: Colors.app.dark,
+//   },
+//   siginInText: {
+//     fontSize: 14,
+//     color: Colors.app.primary,
+//     fontFamily: "DM Sans",
+//     fontWeight: "400",
+//     lineHeight: 20,
+//     textDecorationLine: "underline",
+//   },
+// });
+
+// export default SignIn;
+
+import authApi from "@/app/api/auth";
+import useAuth from "@/app/auth/useAuth";
+import routes from "@/app/navigations/routes";
+import AppText from "@/components/custom/AppText";
+import AppForm from "@/components/custom/forms/AppForm";
+import AppFormField from "@/components/custom/forms/AppFormField";
+import ErrorMessage from "@/components/custom/forms/ErrorMessage";
+import SubmitButton from "@/components/custom/forms/SubmitButton";
+import Screen from "@/components/custom/Screen";
+import { Colors } from "@/constants/Colors";
+
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { FunctionComponent, useState } from "react";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  contact: Yup.string()
+    .test(
+      "email-or-phone",
+      "Enter a valid email or phone number",
+      (value = "") =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || /^\d{10,15}$/.test(value)
+    )
+    .required("Email or phone number is required"),
+  password: Yup.string().required().min(4).label("Password"),
+});
+
+type RootStackParamList = {
+  SignIn: undefined;
+  ResetPassword: undefined;
+  SignUp: undefined;
+};
+
+interface SignInProps {
+  navigation: NativeStackNavigationProp<RootStackParamList>;
+}
+
+interface AuthResponse {
+  message: string;
+  data: {
+    auth: string;
+    verified: boolean;
+  };
+  success: boolean;
+}
+
+const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
+  const auth = useAuth();
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleSubmit = async ({
+    contact,
+    password,
+  }: {
+    contact: string;
+    password: string;
+  }) => {
+    setLoading(true);
+    const result = await authApi.login(contact, password);
+    const responseData = result.data as AuthResponse;
+
+    if (!result.ok) {
+      setErrorMessage("Incorrect Email or Password");
+      return setLoading(false);
+    }
+    setLoading(false);
+    auth.logIn(responseData);
+  };
+
+  return (
+    <Screen backgroundColor={Colors.app.white}>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
+        <View style={styles.header}>
+          <MaterialCommunityIcons
+            name="arrow-left"
+            color={Colors.app.black}
+            size={24}
+            onPress={() => navigation.goBack()}
+          />
+          <TouchableOpacity>
+            <AppText style={styles.skip}>Skip</AppText>
+          </TouchableOpacity>
+        </View>
+
+        {/* Title Section */}
+        <View style={styles.titleContainer}>
+          <AppText style={styles.title}>Welcome Back 👋</AppText>
+          <AppText style={styles.subtitle}>
+            Log in to your account to continue
+          </AppText>
+        </View>
+
+        {/* Form */}
+        <AppForm
+          initialValues={{ contact: "", password: "" }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {errorMessage && (
+            <ErrorMessage
+              error={errorMessage}
+              visible={Boolean(errorMessage)}
+            />
+          )}
+
+          <View style={styles.formFields}>
+            <AppFormField
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              name="contact"
+              placeholder="Email or Phone"
+              textContentType="emailAddress"
+              icon="email"
+            />
+
+            <AppFormField
+              autoCapitalize="none"
+              autoCorrect={false}
+              icon="lock"
+              name="password"
+              placeholder="Password"
+              secureTextEntry={!passwordVisible}
+              textContentType="password"
+              passwordVisible={passwordVisible}
+              togglePasswordVisibility={() =>
+                setPasswordVisible(!passwordVisible)
+              }
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.forgotContainer}
+            onPress={() => navigation.navigate(routes.RESET_PASSWORD)}
+          >
+            <AppText style={styles.forgotPassword}>Forgot Password?</AppText>
+          </TouchableOpacity>
+
+          <SubmitButton
+            btnContainerStyle={[
+              styles.btn,
+              {
+                backgroundColor: loading
+                  ? Colors.app.loading
+                  : Colors.app.primary,
+              },
+            ]}
+            titleStyle={styles.btnTitleStyle}
+            title="Log In"
+            loading={loading}
+            disabled={loading}
+            loadingAnimation={
+              <ActivityIndicator size="small" color={Colors.app.white} />
+            }
+          />
+        </AppForm>
+
+        {/* Bottom Section */}
+        <View style={styles.bottomContainer}>
+          <AppText style={styles.bottomText}>Don’t have an account?</AppText>
+          <TouchableOpacity onPress={() => navigation.navigate(routes.SIGNUP)}>
+            <AppText style={styles.registerText}> Register</AppText>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </Screen>
+  );
+};
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  skip: {
+    color: Colors.app.primary,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  titleContainer: {
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: Colors.app.dark,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.app.gray,
+    marginTop: 8,
+  },
+  formFields: {
+    gap: 12,
+    marginBottom: 3,
+  },
+  forgotContainer: {
+    alignSelf: "flex-end",
+    marginBottom: 20,
+  },
+  forgotPassword: {
+    fontSize: 14,
+    color: Colors.app.primary,
+  },
+  btn: {
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  btnTitleStyle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.app.white,
+  },
+  bottomContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 30,
+  },
+  bottomText: {
+    fontSize: 14,
+    color: Colors.app.gray,
+  },
+  registerText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.app.primary,
+    marginLeft: 6,
+    textDecorationLine: "underline",
+  },
+});
+
+export default SignIn;
