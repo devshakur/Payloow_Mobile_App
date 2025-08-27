@@ -1,113 +1,195 @@
 import AppButton from "@/components/custom/AppButton";
 import AppText from "@/components/custom/AppText";
 import Done from "@/components/custom/Done";
-import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
-import React, { FunctionComponent } from "react";
-import { StyleSheet, View } from "react-native";
+import React from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
+import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
 
-interface WelcomeScreenProps {}
-
-const WelcomeScreen: FunctionComponent<WelcomeScreenProps> = () => {
+const WelcomeScreen: React.FC = () => {
   return (
-    <Screen backgroundColor={Colors.app.white}>
+    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      {/* Decorative background graphics */}
+      <View style={styles.backgroundGraphics} pointerEvents="none">
+        <View style={styles.topShapeWrapper}>
+          <View style={styles.topShapeBox}>
+            <TopShape />
+          </View>
+        </View>
+        <View style={styles.bottomShapeWrapper}>
+          <View style={styles.bottomShapeBox}>
+            <BottomShape />
+          </View>
+        </View>
+        <View style={styles.circleLarge} />
+        <View style={styles.circleSmall} />
+        <View style={styles.squareLarge} />
+        <View style={styles.squareSmall} />
+      </View>
+
       <View style={styles.container}>
         <View style={styles.header}>
-          <AppText style={styles.skip}>Skip for Now</AppText>
+          <TouchableOpacity activeOpacity={0.7}>
+            <AppText style={styles.skip}>Skip for now</AppText>
+          </TouchableOpacity>
         </View>
-        <View style={styles.contentWrapper}>
-          <View style={styles.content}>
-            <Done />
-            <View style={styles.textContainer}>
-              <AppText style={styles.title}>
-                We’re excited to have you on board 🥳
-              </AppText>
-              <AppText style={styles.subTitle}>
-                Take a moment to complete your profile now and unlock all the
-                benefits we’ve prepared for you without having to re-enter your
-                details.
-              </AppText>
-            </View>
-          </View>
+        <View style={styles.illustrationWrapper}>
+          <Done />
+        </View>
+        <View style={styles.heading}> 
+          <AppText style={styles.title}>Complete your profile</AppText>
+          <AppText style={styles.subTitle}>
+            Take a moment to finish setting up and unlock all benefits without re-entering details later.
+          </AppText>
+        </View>
+        <View style={styles.actions}>
           <AppButton
-            titleStyle={styles.titleStyle}
+            titleStyle={styles.btnTitleStyle}
             btnContainerStyle={styles.btn}
-            title="Set Profile Now"
+            title="Set profile now"
           />
         </View>
       </View>
-    </Screen>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  btn: {
-    backgroundColor: Colors.app.primary,
-    width: "100%",
-    color: Colors.app.white,
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: 40,
+    alignItems: 'center',
+    backgroundColor: Colors.app.white,
   },
-  contentWrapper: {
-    width: "90%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 72,
+  backgroundGraphics: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
-  content: {
-    width: "90%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
+  topShapeWrapper: {
+    position: 'absolute',
+    top: 0,
+    right: -80,
+    opacity: 0.18,
   },
-  textContainer: {
-    width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10,
+  bottomShapeWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 300,
+    opacity: 0.15,
   },
-  title: {
-    textAlign: "center",
-    color: Colors.app.black,
-    fontFamily: "DM Sans",
-    fontSize: 20,
-    lineHeight: 30,
-    fontWeight: "700",
-    fontStyle: "normal",
-    width: "80%",
+  topShapeBox: {
+    width: 240,
+    height: 240,
+    transform: [{ rotate: '12deg' }],
+  },
+  bottomShapeBox: {
+    width: 260,
+    height: 260,
+    transform: [{ rotate: '-8deg' }],
+  },
+  circleLarge: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: '#DDEEFF',
+    top: -60,
+    left: -80,
+    opacity: 0.36,
+  },
+  circleSmall: {
+    position: 'absolute',
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: '#CFE6FF',
+    top: 40,
+    right: 8,
+    opacity: 0.32,
+  },
+  squareLarge: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    backgroundColor: '#CFEFFF',
+    left: -8,
+    bottom: -10,
+    opacity: 0.48,
+    transform: [{ rotate: '12deg' }],
+    borderRadius: 16,
+  },
+  squareSmall: {
+    position: 'absolute',
+    width: 96,
+    height: 96,
+    backgroundColor: '#9FD8FF',
+    right: -6,
+    bottom: 20,
+    opacity: 0.44,
+    transform: [{ rotate: '22deg' }],
+    borderRadius: 12,
   },
   container: {
-    width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "column",
-    gap: 54,
+    width: '100%',
+    alignItems: 'center',
+    gap: 40,
   },
   header: {
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    width: "90%",
+    width: '90%',
+    alignItems: 'flex-end',
   },
   skip: {
     color: Colors.app.primary,
-    fontFamily: "DM Sans",
+    fontFamily: 'DM Sans',
     fontSize: 14,
-    fontWeight: "400",
-    fontStyle: "normal",
+    fontWeight: '400',
     lineHeight: 20,
+  },
+  illustrationWrapper: {
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heading: {
+    width: '90%',
+    alignItems: 'center',
+    gap: 12,
+  },
+  title: {
+    fontFamily: 'DM Sans',
+    fontSize: 28,
+    fontWeight: '700',
+    color: Colors.app.black,
+    textAlign: 'center',
+    lineHeight: 34,
   },
   subTitle: {
-    textAlign: "center",
-    color: Colors.app.dark,
-    fontFamily: "DM Sans",
     fontSize: 14,
+    color: Colors.app.dark,
+    fontFamily: 'DM Sans',
+    fontWeight: '400',
     lineHeight: 20,
-    fontWeight: "400",
-    fontStyle: "normal",
-    width: 310,
+    textAlign: 'center',
+    width: '85%',
   },
-  titleStyle: {
-    fontWeight: "normal",
-    fontSize: 16,
+  actions: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  btn: {
+    backgroundColor: Colors.app.primary,
+    width: '90%',
+  },
+  btnTitleStyle: {
+    fontFamily: 'DM Sans',
     color: Colors.app.white,
+    fontWeight: '400',
+    lineHeight: 20,
   },
 });
 

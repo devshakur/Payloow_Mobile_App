@@ -9,7 +9,6 @@ import AppText from "@/components/custom/AppText";
 import ErrorModal from "@/components/custom/ErrorModal";
 import LoadingModal from "@/components/custom/LoadingModal";
 import SVGComponent from "@/components/custom/SVGComponent";
-import Screen from "@/components/custom/Screen";
 import Address from "@/components/custom/profileSetup/Address";
 import KYC from "@/components/custom/profileSetup/KYC";
 import RePin from "@/components/custom/profileSetup/RePin";
@@ -17,11 +16,13 @@ import SetName from "@/components/custom/profileSetup/SetName";
 import SetPin from "@/components/custom/profileSetup/SetPin";
 import SetProfilePicture from "@/components/custom/profileSetup/SetProfilePicture";
 import { Colors } from "@/constants/Colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { FunctionComponent, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+// Decorative SVG assets
+import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
+import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
 import fullLine from "../../../assets/images/custom/svg/full-line.svg";
 import line from "../../../assets/images/custom/svg/line.svg";
 import { UserData } from "../../context/UserProvider";
@@ -49,15 +50,6 @@ interface ApiResponse {
   success?: boolean;
   msg?: string;
   status?: string;
-}
-
-interface AuthResponse {
-  message: string;
-  data: {
-    auth: string;
-    verified: boolean;
-  };
-  success: boolean;
 }
 
 interface AuthResponse {
@@ -104,8 +96,8 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
       } else {
         throw new Error("Failed to fetch user data");
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
+      console.error('Failed to fetch user data');
     } finally {
       setLoading(false);
     }
@@ -184,11 +176,12 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
         setResponseMessage(res.message || "Failed to upload image");
         return setIsError(true);
       }
-    } catch (error) {
+    } catch {
       return setIsError(true);
     }
   };
 
+  // Create user after first two steps
   const createUser = async (
     firstName: string,
     lastName: string,
@@ -200,10 +193,7 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
     address: string
   ) => {
     setLoading(true);
-    setResponseMessage(null); // Reset previous errors
-    let result;
-
-    result = await registerApi.register(
+    const result = await registerApi.register(
       firstName,
       lastName,
       email,
@@ -215,50 +205,64 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
     );
 
     const responseData = result.data as ApiResponse;
-
     if (!result.ok) {
       setLoading(false);
       setResponseMessage(
-        responseData?.message ||
-          responseData?.msg ||
-          "Failed to create an account"
+        responseData?.message || responseData?.msg || "Failed to register user"
       );
       return setIsError(true);
     }
 
-    // Retrieve and store the token after registration
-    const tokenResult = await getToken(phone, password);
-    await getCustomerCode();
-    if (!tokenResult) {
-      setLoading(false);
-      return; // Stop execution if token retrieval fails
-    }
-    authStorage.storeToken(tokenResult);
     setLoading(false);
-    setCurrentScreen(currentScreen + 1);
+    // login then proceed to next screen
+    const auth = await getToken(phone, password);
+    if (auth) {
+      await getCustomerCode();
+      setCurrentScreen((prev) => prev + 1);
+    }
   };
 
+  // Unified onClose handler for steps
   const onClose = async (updatedValues?: any) => {
+    if (!updatedValues) return;
+
     if (currentScreen < 5) {
       if (currentScreen === 1) {
-        // move on
+        // just advance
         setCurrentScreen(currentScreen + 1);
       } else if (currentScreen === 2) {
-        const { country, state, address } = updatedValues;
-        const { firstName, lastName, email, password, phone } = formValues;
+        const { firstName, lastName, email, password, phone, country, state, address } = {
+          firstName: formValues.firstName,
+          lastName: formValues.lastName,
+          email: formValues.email,
+          password: formValues.password,
+          phone: formValues.phone,
+          country: formValues.country,
+          state: formValues.state,
+          address: formValues.address,
+          ...updatedValues,
+        } as any;
+
         await createUser(
           firstName ?? "",
           lastName ?? "",
           email ?? "",
           password ?? "",
-          phone ?? "",
+            phone ?? "",
           country ?? "",
           state ?? "",
           address ?? ""
         );
       } else if (currentScreen === 3) {
-        const { country, bvn, accountNumber, firstName, lastName, bank } =
-          updatedValues;
+        const { country, bvn, accountNumber, firstName, lastName, bank } = {
+          country: formValues.country,
+          bvn: formValues.bvn,
+          accountNumber: formValues.accountNumber,
+          firstName: formValues.firstName,
+          lastName: formValues.lastName,
+          bank: formValues.bank,
+          ...updatedValues,
+        } as any;
 
         await verifyCustomer(
           customerCode || "",
@@ -270,10 +274,12 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
           bank
         );
       } else if (currentScreen === 4 && formValues.pin?.trim()) {
-        // Handle pin submit
         const { pin } = formValues;
         await setPin(pin);
         setCurrentScreen(currentScreen + 1);
+      } else if (currentScreen === 4) {
+        // first pin entry -> advance
+        setCurrentScreen(currentScreen + 0); // wait for rePin
       }
     } else {
       if (updatedValues?.type === "skip") {
@@ -285,11 +291,9 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
   };
 
   const onCloseError = () => {
-    if (currentScreen === 2) {
-      setIsError(false);
-      navigation.navigate(routes.SIGNUP);
-    }
+    // Simply dismiss error and allow user to correct inputs on the same step
     setIsError(false);
+    setResponseMessage(null);
   };
 
   const getMimeType = (uri: string): string => {
@@ -300,100 +304,96 @@ const ProfileSetUp: FunctionComponent<ProfileSetUpProps> = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      enableOnAndroid
-      enableAutomaticScroll
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
-      <Screen backgroundColor={Colors.app.white}>
-        <View style={styles.container}>
-          <View style={styles.headerAndProgressContainer}>
-            <View style={styles.header}>
-              <MaterialCommunityIcons
-                name="arrow-left"
-                color={Colors.app.black}
-                size={20}
-                onPress={() => navigation.goBack()}
-              />
-
-              <AppText style={styles.title}>Set Profile</AppText>
-            </View>
-            {/* Progress Bar */}
-            <View style={styles.progress}>
-              {[...Array(5)].map((_, index) => (
-                <SVGComponent
-                  key={index}
-                  width={32}
-                  height={0}
-                  SvgFile={index < currentScreen ? fullLine : line}
-                />
-              ))}
-            </View>
+      {/* Background decorative shapes */}
+      <View style={styles.backgroundGraphics} pointerEvents="none">
+        <View style={styles.topShapeWrapper}>
+          <View style={styles.topShapeBox}>
+            <TopShape />
           </View>
-          {currentScreen === 1 && <SetName onClose={onClose} />}
-          {currentScreen === 2 && <Address onClose={onClose} />}
-          {currentScreen === 3 && <KYC onClose={onClose} />}
-          {currentScreen === 4 && !formValues.pin?.trim() && (
-            <SetPin onClose={onClose} />
-          )}
-          {currentScreen === 4 && formValues.pin?.trim() && (
-            <RePin onClose={onClose} />
-          )}
-          {currentScreen === 5 && <SetProfilePicture onClose={onClose} />}
         </View>
+        <View style={styles.bottomShapeWrapper}>
+          <View style={styles.bottomShapeBox}>
+            <BottomShape />
+          </View>
+        </View>
+        <View style={styles.circleLarge} />
+        <View style={styles.circleSmall} />
+        <View style={styles.squareLarge} />
+        <View style={styles.squareSmall} />
+      </View>
 
-        {/* Modals */}
-        {isError && (
-          <ErrorModal
-            visible={isError}
-            onClose={onCloseError}
-            responseText={responseMessage || "Failed"}
-          />
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={22} color={Colors.app.dark} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.headerSection}>
+        <AppText style={styles.title}>Set Profile</AppText>
+        <View style={styles.progress}>
+          {[...Array(5)].map((_, index) => (
+            <SVGComponent
+              key={index}
+              width={32}
+              height={0}
+              SvgFile={index < currentScreen ? fullLine : line}
+            />
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.stepsContainer}>
+        {currentScreen === 1 && <SetName onClose={onClose} />}
+        {currentScreen === 2 && <Address onClose={onClose} />}
+        {currentScreen === 3 && <KYC onClose={onClose} />}
+        {currentScreen === 4 && !formValues.pin?.trim() && (
+          <SetPin onClose={onClose} />
         )}
+        {currentScreen === 4 && formValues.pin?.trim() && (
+          <RePin onClose={onClose} />
+        )}
+        {currentScreen === 5 && <SetProfilePicture onClose={onClose} />}
+      </View>
 
-        {loading && <LoadingModal visible={loading} />}
-      </Screen>
-    </KeyboardAwareScrollView>
+      {isError && (
+        <ErrorModal
+          visible={isError}
+          onClose={onCloseError}
+          responseText={responseMessage || "Failed"}
+        />
+      )}
+      {loading && <LoadingModal visible={loading} />}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "column",
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: 8,
+    justifyContent: 'flex-start',
+    backgroundColor: Colors.app.white,
   },
-  progress: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    width: "70%",
-    gap: 2,
-    alignSelf: "center",
-  },
-  title: {
-    color: Colors.app.black,
-    fontFamily: "DM Sans",
-    fontSize: 18,
-    fontWeight: "600",
-    height: 26,
-  },
-  header: {
-    justifyContent: "flex-start",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 100,
-    marginTop: 10,
-    width: "90%",
-  },
-  headerAndProgressContainer: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
-    width: "100%",
-  },
+  backgroundGraphics: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  topShapeWrapper: { position: 'absolute', top: 0, right: -80, opacity: 0.18 },
+  bottomShapeWrapper: { position: 'absolute', bottom: 0, left: 300, opacity: 0.15 },
+  topShapeBox: { width: 240, height: 240, transform: [{ rotate: '12deg' }] },
+  bottomShapeBox: { width: 260, height: 260, transform: [{ rotate: '-8deg' }] },
+  circleLarge: { position: 'absolute', width: 260, height: 260, borderRadius: 130, backgroundColor: '#DDEEFF', top: -60, left: -80, opacity: 0.36 },
+  circleSmall: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: '#CFE6FF', top: 40, right: 8, opacity: 0.32 },
+  squareLarge: { position: 'absolute', width: 220, height: 220, backgroundColor: '#CFEFFF', left: -8, bottom: -10, opacity: 0.48, transform: [{ rotate: '12deg' }], borderRadius: 16 },
+  squareSmall: { position: 'absolute', width: 96, height: 96, backgroundColor: '#9FD8FF', right: -6, bottom: 20, opacity: 0.44, transform: [{ rotate: '22deg' }], borderRadius: 12 },
+  headerBar: { width: '100%', paddingHorizontal: 8, paddingBottom: 8, alignItems: 'flex-start', justifyContent: 'center' },
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 10, opacity: 0.6 },
+  headerSection: { width: '90%', alignSelf: 'center', marginBottom: 8, gap: 12 },
+  title: { fontSize: 28, fontWeight: '700', color: Colors.app.black },
+  progress: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '70%', gap: 2, alignSelf: 'center' },
+  stepsContainer: { width: '100%', alignItems: 'center', gap: 32, paddingBottom: 40 },
 });
 
 export default ProfileSetUp;

@@ -6,17 +6,21 @@ import AppForm from "@/components/custom/forms/AppForm";
 import AppFormOtpInput from "@/components/custom/forms/AppFormOtpInput";
 import SubmitButton from "@/components/custom/forms/SubmitButton";
 import { Colors } from "@/constants/Colors";
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { FunctionComponent, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import * as Yup from "yup";
+// Decorative SVG assets
+import BottomShape from "../../../assets/images/custom/svg/Intersect-bottom.svg";
+import TopShape from "../../../assets/images/custom/svg/Intersect-top.svg";
 
 const validationSchema = Yup.object().shape({
   otp: Yup.string().required().length(6).label("OTP"),
@@ -35,17 +39,19 @@ interface CountdownTimerHandle {
 }
 
 const OTP: FunctionComponent<OTPProps> = ({ navigation }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentModal, setCurrentModal] = useState<string | null>(null);
-  const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const countdownRef = useRef<CountdownTimerHandle>(null);
   const [loading, setLoading] = useState(false);
-  const [backgroundLoading, setbackgroundLoading] = useState(false);
+  const [otpVal, setOtpVal] = useState("");
   const { setFormValues } = useForm();
 
-  const handleSubmit = ({ otp }: { otp: string }) => {
-    setFormValues((prev) => ({ ...prev, ...{ otp } }));
-    navigation.navigate(routes.SET_NEW_PASSWORD);
+  const handleSubmit = async ({ otp }: { otp: string }) => {
+    setLoading(true);
+    setFormValues((prev) => ({ ...prev, otp }));
+    // Simulate brief delay (replace with API if needed)
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate(routes.SET_NEW_PASSWORD);
+    }, 400);
   };
 
   const handleResendOTP = async () => {};
@@ -53,166 +59,111 @@ const OTP: FunctionComponent<OTPProps> = ({ navigation }) => {
 
 
   return (
-    <View style={styles.container}>
-      <View style={styles.heading}>
-        <MaterialCommunityIcons
-          name="arrow-left"
-          color={Colors.app.black}
-          size={20}
-          onPress={() => navigation.goBack()}
-        />
-
-        <AppText style={styles.title}>Password Reset Code</AppText>
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Background shapes */}
+      <View style={styles.backgroundGraphics} pointerEvents="none">
+        <View style={styles.topShapeWrapper}><View style={styles.topShapeBox}><TopShape /></View></View>
+        <View style={styles.bottomShapeWrapper}><View style={styles.bottomShapeBox}><BottomShape /></View></View>
+        <View style={styles.circleLarge} />
+        <View style={styles.circleSmall} />
+        <View style={styles.squareLarge} />
+        <View style={styles.squareSmall} />
       </View>
 
-      <AppForm
-        initialValues={{ otp: "" }}
-        onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-      >
-        <View style={styles.formContainer}>
-          <View style={styles.OTPContainer}>
-            <AppText style={styles.OTPLabel}>Enter your reset code</AppText>
-            <AppFormOtpInput name="otp" numberOfDigits={6} />
-          </View>
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={22} color={Colors.app.dark} />
+        </TouchableOpacity>
+      </View>
 
-          <View style={styles.reserContainer}>
-            <View style={styles.leftInnerResetContainer}>
-              <AntDesign
-                name="questioncircle"
-                size={24}
-                color={Colors.app.primary}
-              />
-              <TouchableOpacity onPress={handleResendOTP}>
-                <AppText style={styles.leftInnerResetLebel}>
-                  Didn’t get the code?
-                </AppText>
-              </TouchableOpacity>
+      <View style={styles.headerSection}>
+        <AppText style={styles.title}>Password Reset Code</AppText>
+        <AppText style={styles.subtitle}>Enter the 6-digit verification code sent to your email</AppText>
+      </View>
+
+      <View style={styles.container}>        
+        <AppForm
+          initialValues={{ otp: "" }}
+          onSubmit={handleSubmit}
+          validationSchema={validationSchema}
+        >
+          <View style={styles.formFields}>          
+            <View style={styles.field}>            
+              <AppText style={styles.label}>Enter your reset code</AppText>
+              <AppFormOtpInput name="otp" numberOfDigits={6} setVal={setOtpVal} />
             </View>
-            <View style={styles.rightInnerResetContainer}>
-              <CountdownTimer
-                ref={countdownRef}
-                onExpire={() =>
-                  Alert.alert("OTP Expired!", "Request a new OTP.")
-                }
-              />
+
+            <View style={styles.resendRow}>
+              <View style={styles.leftInnerResetContainer}>
+                <AntDesign name="questioncircle" size={22} color={Colors.app.primary} />
+                <TouchableOpacity onPress={handleResendOTP}>
+                  <AppText style={styles.resendText}>Didn’t get the code?</AppText>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.rightInnerResetContainer}>
+                <CountdownTimer
+                  ref={countdownRef}
+                  onExpire={() => Alert.alert("OTP Expired!", "Request a new OTP.")}
+                />
+              </View>
             </View>
+
+            <SubmitButton
+              btnContainerStyle={[
+                styles.btn,
+                { backgroundColor: loading ? Colors.app.loading : otpVal.length === 6 ? Colors.app.primary : Colors.app.input }
+              ]}
+              titleStyle={[
+                styles.btnTitleStyle,
+                { color: otpVal.length === 6 ? Colors.app.white : Colors.app.light }
+              ]}
+              title="Verify Code"
+              loading={loading}
+              disabled={loading || otpVal.length !== 6}
+              loadingAnimation={<ActivityIndicator size="small" color={Colors.app.white} />}
+            />
           </View>
-          <SubmitButton
-            loading={loading}
-            disabled={loading}
-            loadingAnimation={
-              <ActivityIndicator size="large" color={Colors.app.light} />
-            }
-            btnContainerStyle={[
-              styles.btn,
-              {
-                backgroundColor: loading
-                  ? Colors.app.loading
-                  : Colors.app.primary,
-              },
-            ]}
-            titleStyle={styles.btnTitleStyle}
-            title="Set OTP"
-          />
-        </View>
-      </AppForm>
-    </View>
+        </AppForm>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  formContainer: {
-    gap: 16,
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: 8,
+    justifyContent: 'flex-start',
+    backgroundColor: Colors.app.white,
   },
-  leftInnerResetLebel: {
-    color: Colors.app.black,
-    fontFamily: "DM Sans",
-    fontSize: 14,
-    fontWeight: "400",
-    height: 20,
-    fontStyle: "normal",
-  },
-  rightInnerResetLabel: {
-    color: Colors.app.dark,
-    fontFamily: "DM Sans",
-    fontSize: 14,
-    fontWeight: "600",
-    height: 20,
-    fontStyle: "normal",
-  },
-  leftInnerResetContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-  },
-  rightInnerResetContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 4,
-  },
-  reserContainer: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    width: "100%",
-  },
-  OTPContainer: {
-    width: "100%",
-    height: "auto",
-    justifyContent: "space-between",
-    alignItems: "center",
-    alignSelf: "center",
-    flexDirection: "column",
-    gap: 12,
-  },
-  container: {
-    gap: 30,
-    width: "90%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "column",
-    alignSelf: "center",
-  },
-  title: {
-    color: Colors.app.black,
-    fontFamily: "DM Sans",
-    fontSize: 18,
-    fontWeight: "600",
-    height: 26,
-  },
-  heading: {
-    justifyContent: "flex-start",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 40,
-    marginTop: 23,
-    width: "100%",
-  },
-  OTPLabel: {
-    fontFamily: "DM Sans",
-    fontSize: 14,
-    fontWeight: "600",
-    height: 20,
-    color: Colors.app.black,
-    alignSelf: "flex-start",
-  },
-  btn: {
-    backgroundColor: Colors.app.primary,
-    width: "100%",
-    color: Colors.app.white,
-  },
-  btnTitleStyle: {
-    fontFamily: "DM Sans",
-    color: Colors.app.white,
-    fontWeight: "400",
-    lineHeight: 20,
-  },
+  backgroundGraphics: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  topShapeWrapper: { position: 'absolute', top: 0, right: -80, opacity: 0.18 },
+  bottomShapeWrapper: { position: 'absolute', bottom: 0, left: 300, opacity: 0.15 },
+  topShapeBox: { width: 240, height: 240, transform: [{ rotate: '12deg' }] },
+  bottomShapeBox: { width: 260, height: 260, transform: [{ rotate: '-8deg' }] },
+  circleLarge: { position: 'absolute', width: 260, height: 260, borderRadius: 130, backgroundColor: '#DDEEFF', top: -60, left: -80, opacity: 0.36 },
+  circleSmall: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: '#CFE6FF', top: 40, right: 8, opacity: 0.32 },
+  squareLarge: { position: 'absolute', width: 220, height: 220, backgroundColor: '#CFEFFF', left: -8, bottom: -10, opacity: 0.48, transform: [{ rotate: '12deg' }], borderRadius: 16 },
+  squareSmall: { position: 'absolute', width: 96, height: 96, backgroundColor: '#9FD8FF', right: -6, bottom: 20, opacity: 0.44, transform: [{ rotate: '22deg' }], borderRadius: 12 },
+  headerBar: { width: '100%', paddingHorizontal: 8, paddingTop: 0, paddingBottom: 16, alignItems: 'flex-start', justifyContent: 'center' },
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 10, opacity: 0.6 },
+  headerSection: { width: '90%', alignSelf: 'center', marginBottom: 10 },
+  title: { fontSize: 28, fontWeight: '700', color: Colors.app.black, marginBottom: 8 },
+  subtitle: { fontSize: 14, fontWeight: '400', color: Colors.app.dark, lineHeight: 20 },
+  container: { width: '100%', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', gap: 32 },
+  formFields: { justifyContent: 'center', alignItems: 'center', flexDirection: 'column', width: '90%', gap: 20 },
+  field: { width: '100%', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column', gap: 12 },
+  label: { fontFamily: 'DM Sans', fontSize: 14, fontWeight: '600', color: Colors.app.dark, alignSelf: 'flex-start' },
+  resendRow: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  leftInnerResetContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rightInnerResetContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  resendText: { fontSize: 14, fontWeight: '400', color: Colors.app.black },
+  btn: { backgroundColor: Colors.app.primary, width: '90%', color: Colors.app.white, marginTop: 8 },
+  btnTitleStyle: { fontFamily: 'DM Sans', fontWeight: '400', lineHeight: 20 },
 });
 
 export default OTP;
