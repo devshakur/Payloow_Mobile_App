@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, FlatList, StyleSheet, View } from "react-native";
+import { Animated, Dimensions, ScrollView, StyleSheet, View } from "react-native";
 import Course from "./Course";
 
 const { width } = Dimensions.get("window");
@@ -50,45 +50,44 @@ const FeaturedCoursesDummy = ({
     // Fake API call delay
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [opacity]);
 
   if (loading) {
     // Skeleton loader (mimicking course cards)
     return (
       <View style={styles.container}>
-        <FlatList
-          data={[1, 2, 3, 4]} // show 4 skeleton placeholders
+        <ScrollView
           horizontal
-          keyExtractor={(item) => item.toString()}
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 12 }}
-          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-          renderItem={() => (
-            <Animated.View style={[styles.skeletonCard, { opacity }]}>
-              <View style={styles.skeletonThumbnail} />
-              <View style={styles.skeletonText} />
-              <View style={[styles.skeletonText, { width: "60%" }]} />
-            </Animated.View>
-          )}
-        />
+        >
+          {[1, 2, 3, 4].map((item) => (
+            <View key={item.toString()} style={{ marginRight: 12 }}>
+              <Animated.View style={[styles.skeletonCard, { opacity }]}>
+                <View style={styles.skeletonThumbnail} />
+                <View style={styles.skeletonText} />
+                <View style={[styles.skeletonText, { width: "60%" }]} />
+              </Animated.View>
+            </View>
+          ))}
+        </ScrollView>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={dummyCourses}
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingHorizontal: 12 }}
-        ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-        renderItem={({ item }) => (
-          <Course course={item} onPress={() => onCoursePress?.(item)} />
-        )}
-        scrollEnabled={false}
-        nestedScrollEnabled={true}
-      />
+      >
+        {dummyCourses.map((course, index) => (
+          <View key={course.id} style={{ marginRight: index < dummyCourses.length - 1 ? 12 : 0 }}>
+            <Course course={course} onPress={() => onCoursePress?.(course)} />
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 };

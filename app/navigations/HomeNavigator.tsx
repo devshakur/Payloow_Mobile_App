@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React, { FunctionComponent } from "react";
-import { CourseType } from "../../components/custom/eLearning/Course";
+import { FunctionComponent } from "react";
+import { CourseType } from "../../components/custom/eLearning/StudentCourse";
 import CartDetail from "../screens/easyBuy/easyBuyCheckOut/CartDetail";
 import CompareFeatureScreen from "../screens/easyBuy/easyBuyCheckOut/CompareFeatureScreen";
 import EasyBuyCheckOut from "../screens/easyBuy/easyBuyCheckOut/EasyBuyCheckOut";
