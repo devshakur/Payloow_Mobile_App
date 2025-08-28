@@ -1,9 +1,8 @@
 import utility from "@/app/api/utility";
-import { useUser } from "@/app/context/UserProvider";
+import { UserData, useUser } from "@/app/context/UserProvider";
 import AppButton from "@/components/custom/AppButton";
 import AppText from "@/components/custom/AppText";
 import ErrorModal from "@/components/custom/ErrorModal";
-import List from "@/components/custom/list/List";
 import Pin from "@/components/custom/Pin";
 import Screen from "@/components/custom/Screen";
 import SuccessModal from "@/components/custom/SuccessModal";
@@ -11,8 +10,11 @@ import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent, useState } from "react";
-import { ActivityIndicator, StyleSheet, Switch, View } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from "react-native";
+import * as yup from 'yup';
+import userDetails from "../../../api/userDetails";
 import routes from "../../../navigations/routes";
 
 interface AirtimeSummaryProps {
@@ -20,25 +22,9 @@ interface AirtimeSummaryProps {
 }
 type RootStackParamList = {
   FundWallet: undefined;
-  AirtimeSummary: {
-    network: any;
-    phone: any;
-    amount: any;
-  };
+  Airtime: { reset?: boolean } | undefined;
+  AirtimeSummary: { network: any; phone: any; amount: any };
 };
-
-// interface Response {
-//   message?: string;
-//   success: true;
-//   data: {
-//     statusCode: 201;
-//     message: string;
-//     data: any;
-//     code: string;
-//     status: string;
-//     finalStatus: string;
-//   };
-// }
 
 interface Response {
   message?: string;
@@ -59,199 +45,237 @@ interface Response {
   };
 }
 
-const AirtimeSummary: FunctionComponent<AirtimeSummaryProps> = ({
-  navigation,
-}) => {
+const AirtimeSummary: FunctionComponent<AirtimeSummaryProps> = ({ navigation }) => {
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentModal, setCurrentModal] = useState<string | null>(null);
-  const [discount, setDiscount] = useState<number>(10);
-  const [addDiscount, setAddDiscount] = useState(false);
+  // Discount feature currently disabled
   const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [pinError, setPinError] = useState<string | null>(null);
   const route = useRoute<RouteProp<RootStackParamList, "AirtimeSummary">>();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
-  let {
-    network,
-    phone,
-    amount,
-  }: {
-    network: any;
-    phone: any;
-    amount: any;
-  } = route.params ?? {};
+  let { network, phone, amount } = route.params ?? {};
+
+  // Validation schema
+  const validationSchema = yup.object().shape({
+    balance: yup.number()
+      .min(amount || 0, `Insufficient balance. You need at least ₦${amount} to complete this transaction. Tap here to fund your wallet.`)
+      .required('Balance is required'),
+  });
+
+  // Validate balance
+  const validateBalance = useCallback(async (currentBalance: number) => {
+    try {
+      await validationSchema.validate({ balance: currentBalance }, { abortEarly: false });
+      setValidationErrors({});
+    } catch (err: any) {
+      const errorMessages: { [key: string]: string } = {};
+      err.inner.forEach((error: any) => {
+        errorMessages[error.path] = error.message;
+      });
+      setValidationErrors(errorMessages);
+    }
+  }, [validationSchema]);
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoadingUser(true);
+        
+        // Check if user has auth token
+        const authToken = await SecureStore.getItemAsync("auth");
+        if (!authToken) {
+          setLoadingUser(false);
+          return;
+        }
+        
+        const userResult = await userDetails.getUser();
+        
+        if (userResult.ok && userResult.data) {
+          const userData = userResult.data as UserData;
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    // Only fetch if we don't already have user data
+    if (!user) {
+      fetchUserData();
+    } else {
+      setLoadingUser(false);
+    }
+  }, [setUser, user]);
+
+  // Validate balance whenever user data or amount changes
+  useEffect(() => {
+    if (user && !loadingUser) {
+      const currentBalance = Number(user?.data?.balance?.$numberDecimal || 0);
+      validateBalance(currentBalance);
+    }
+  }, [user, amount, loadingUser, validateBalance]);
 
   const handlePurchase = async (pin: string) => {
-    setLoading(true); // START loading
+    setLoading(true);
+    setPinError(null); // Clear any previous PIN errors
 
-    const result = await utility.buyAirtime(
-      phone,
-      Number(amount),
-      pin,
-      network
-    );
+    const result = await utility.buyAirtime(phone, Number(amount), pin, network);
     const responseData = result.data as Response;
 
     if (!result.ok) {
-      setLoading(false); // STOP loading before showing error
-      setResponseMessage(responseData.data.finalStatus);
-      return showModal("failed");
+      setLoading(false);
+
+      // Check if it's a PIN-related error
+      const errorMessage = responseData?.message || responseData?.data?.finalStatus || "Transaction failed";
+      if (errorMessage.toLowerCase().includes("pin") ||
+          errorMessage.toLowerCase().includes("incorrect") ||
+          errorMessage.toLowerCase().includes("invalid")) {
+        setPinError("Invalid PIN. Please check and try again.");
+        // Don't close the PIN modal, let user retry
+        return;
+      } else {
+        setResponseMessage(errorMessage);
+        showModal("failed");
+      }
+      return;
     }
 
     setLoading(false);
     setResponseMessage(responseData.message || "");
+    hideModal(); // Close PIN modal first
     showModal("success");
   };
 
-  // Show modal
   const showModal = (modalName: string) => {
     setCurrentModal(modalName);
     setModalVisible(true);
   };
 
-  // Hide modal
   const hideModal = () => {
     setModalVisible(false);
     setCurrentModal(null);
   };
 
-  const getFinalPrice = (amount: number, discount: number) => {
-    return addDiscount ? amount - discount : amount;
-  };
+  const getFinalPrice = (amount: number) => amount; // No discount logic currently
 
   return (
     <Screen backgroundColor={Colors.app.screen}>
-      <View style={styles.container}>
-        <View style={styles.heading}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            color={Colors.app.black}
-            size={20}
-          />
-          <AppText style={styles.middleTitle}>Airtime Summary</AppText>
-
-          <AppText style={styles.history}>History</AppText>
-        </View>
-
-        <View style={styles.contents}>
-          <View style={styles.summaryContents}>
-            <AppText style={styles.amount}>₦{amount}</AppText>
-
-            <View style={styles.innerConatiner}>
-              <View style={styles.innerConatinerContent}>
-                <AppText style={styles.label}>Airtime Amount:</AppText>
-                <AppText style={styles.value}>
-                  ₦{getFinalPrice(amount, discount)}
-                </AppText>
-              </View>
-              <View style={styles.innerConatinerContent}>
-                <AppText style={styles.label}>Type</AppText>
-                <AppText style={styles.value}>VTU</AppText>
-              </View>
-              <View style={styles.innerConatinerContent}>
-                <AppText style={styles.label}>Service Provide</AppText>
-                <AppText style={styles.value}>{network}</AppText>
-              </View>
-            </View>
-
-            <View style={styles.innerConatiner}>
-              <View style={styles.innerConatinerContent}>
-                <AppText style={styles.label}>Discount</AppText>
-                <AppText style={styles.value}>₦{discount}</AppText>
-              </View>
-              <List
-                leftLabel="Cash back?"
-                rightIcon={
-                  <Switch
-                    value={addDiscount}
-                    onValueChange={setAddDiscount}
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                  />
-                }
-                listStyle={{ backgroundColor: "#DBE7FE", padding: 5 }}
-              />
-            </View>
-
-            <List
-              leftIcon={
-                <View
-                  style={{
-                    backgroundColor: "#F1F3F9",
-                    width: 40,
-                    height: 40,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "100%",
-                  }}
-                >
-                  <MaterialCommunityIcons name="wallet" size={24} />
-                </View>
-              }
-              leftLabel={`Wallet (₦${user?.data.wallet.balance})`}
-              rightLabelStyle={{ color: Colors.app.primary }}
-              rightIcon={
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  color={Colors.app.primary}
-                  size={24}
-                />
-              }
-              rightLabel="Fund Wallet "
-              listStyle={{
-                height: 81,
-                backgroundColor: Colors.app.white,
-                padding: 5,
-              }}
-              onPress={() => navigation.navigate(routes.FUND_WALLET)}
-            />
-          </View>
-          <AppButton
-            btnContainerStyle={[
-              styles.btn,
-              {
-                backgroundColor: loading
-                  ? Colors.app.loading
-                  : Colors.app.primary,
-              },
-            ]}
-            title="Pay"
-            titleStyle={styles.btnTitleStyle}
-            disabled={loading}
-            loading={loading}
-            loadingAnimation={
-              <ActivityIndicator size="small" color={Colors.app.white} />
-            }
-            onPress={() => showModal("pin")}
-          />
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialCommunityIcons name="arrow-left" color={Colors.app.dark} size={22} />
+        </TouchableOpacity>
+        <AppText style={styles.title}>Airtime Summary</AppText>
+        <View style={styles.headerPlaceholder} />
       </View>
 
+      {/* Main Content */}
+      <View style={styles.content}>
+        {/* Amount */}
+        <AppText style={styles.amount}>₦{amount}</AppText>
+        <AppText style={styles.subLabel}>{phone}</AppText>
+
+        {/* Summary Card */}
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <AppText style={styles.label}>Airtime Amount</AppText>
+            <AppText style={styles.value}>₦{getFinalPrice(amount)}</AppText>
+          </View>
+          <View style={styles.row}>
+            <AppText style={styles.label}>Type</AppText>
+            <AppText style={styles.value}>VTU</AppText>
+          </View>
+          <View style={styles.row}>
+            <AppText style={styles.label}>Provider</AppText>
+            <AppText style={styles.value}>{network}</AppText>
+          </View>
+        </View>
+
+        {/* Wallet Info */}
+        <TouchableOpacity
+          style={styles.walletRow}
+          onPress={() => navigation.navigate(routes.FUND_WALLET)}
+        >
+          <View style={styles.walletIcon}>
+            <MaterialCommunityIcons name="wallet" size={22} color={Colors.app.dark} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <AppText style={styles.label}>Wallet Balance</AppText>
+            <AppText style={styles.value}>
+              ₦{loadingUser ? "..." : (
+                Number(user?.data?.balance?.$numberDecimal || 0)
+              ).toLocaleString()}
+            </AppText>
+            {validationErrors.balance && (
+              <AppText style={styles.errorText}>
+                {validationErrors.balance}
+              </AppText>
+            )}
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={24} color={Colors.app.primary} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Pay Button */}
+      <View style={styles.footer}>
+        <AppButton
+          btnContainerStyle={[
+            styles.payButton,
+            { 
+              backgroundColor: loading 
+                ? Colors.app.loading 
+                : (loading || !!validationErrors.balance) 
+                  ? Colors.app.disabled 
+                  : Colors.app.primary 
+            },
+          ]}
+          title="Pay"
+          titleStyle={styles.payText}
+          disabled={loading || !!validationErrors.balance}
+          loading={loading}
+          loadingAnimation={<ActivityIndicator size="small" color={Colors.app.white} />}
+          onPress={() => showModal("pin")}
+        />
+      </View>
+
+      {/* Modals */}
       {modalVisible && currentModal === "pin" && (
         <Pin
           isVisible={modalVisible}
-          onClose={() => {
-            hideModal();
-          }}
-          onSubmitPin={(pin) => {
-            hideModal();
-            handlePurchase(pin); // <<< Called here
-          }}
+          onClose={hideModal}
+          onSubmitPin={handlePurchase}
+          errorMessage={pinError}
         />
       )}
-
       {modalVisible && currentModal === "success" && (
         <SuccessModal
           visible={modalVisible}
           onClose={hideModal}
-          responseText={responseMessage || "Successfully buy Airtime"}
+          onBack={() => {
+            hideModal();
+            // Reset navigation stack so returning does not go back to summary
+            navigation.reset({
+              index: 0,
+              routes: [
+                { name: "Airtime", params: { reset: true } as any },
+              ],
+            });
+          }}
+          responseText={responseMessage || "Airtime purchase successful"}
         />
       )}
-      {/* Modals */}
       {modalVisible && currentModal === "failed" && (
         <ErrorModal
           visible={modalVisible}
           onClose={hideModal}
-          responseText={responseMessage || "Failed to buy Airtime"}
+          responseText={responseMessage || "Airtime purchase failed"}
         />
       )}
     </Screen>
@@ -259,112 +283,101 @@ const AirtimeSummary: FunctionComponent<AirtimeSummaryProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "column",
-    gap: 10,
-    marginTop: 20,
-  },
-  heading: {
-    justifyContent: "space-between",
-    alignItems: "center",
+  header: {
     flexDirection: "row",
-    width: "90%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
-  history: {
-    color: Colors.app.primary,
-    fontFamily: "DM Sans",
-    fontSize: 14,
-    fontWeight: "400",
-    fontStyle: "normal",
-    lineHeight: 20,
-    textAlign: "center",
+  headerPlaceholder: {
+    width: 22,
   },
-  middleTitle: {
-    color: Colors.app.black,
-    fontFamily: "DM Sans",
-    fontSize: 16,
+  title: {
+    fontSize: 18,
     fontWeight: "600",
-    fontStyle: "normal",
-    lineHeight: 28,
-    textAlign: "center",
+    color: Colors.app.dark,
+  },
+  content: {
+    paddingHorizontal: 20,
+    gap: 24,
+    alignItems: "center",
   },
   amount: {
-    color: Colors.app.black,
-    fontFamily: "DM Sans",
-    fontSize: 30,
-    fontWeight: "600",
-    fontStyle: "normal",
-    lineHeight: 38,
-    textAlign: "center",
-  },
-  amountLabel: {
+    fontSize: 32,
+    fontWeight: "700",
     color: Colors.app.dark,
-    fontFamily: "DM Sans",
-    fontSize: 14,
-    fontWeight: "400",
-    fontStyle: "normal",
-    lineHeight: 20,
-    textAlign: "center",
   },
-  innerConatiner: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "column",
-    height: 110,
+  subLabel: {
+    fontSize: 14,
+    color: Colors.app.dark + "70",
+  },
+  card: {
     width: "100%",
     backgroundColor: Colors.app.white,
-    borderRadius: 10,
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  label: {
-    color: Colors.app.dark,
-    fontFamily: "DM Sans",
-    fontSize: 12,
-    fontWeight: "600",
-    fontStyle: "normal",
-    lineHeight: 18,
-    textAlign: "center",
-  },
-  value: {
-    color: Colors.app.dark,
-    fontFamily: "DM Sans",
-    fontSize: 12,
-    fontWeight: "400",
-    fontStyle: "normal",
-    lineHeight: 18,
-    textAlign: "center",
-  },
-  innerConatinerContent: {
+  row: {
+    flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    flexDirection: "row",
-    width: "100%",
-    padding: 10,
   },
-  btn: {
-    backgroundColor: Colors.app.primary,
-    width: "100%",
-    color: Colors.app.white,
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: Colors.app.dark,
   },
-  btnTitleStyle: {
-    fontFamily: "DM Sans",
-    color: Colors.app.white,
+  value: {
+    fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
+    color: Colors.app.dark,
   },
-  contents: {
-    width: "85%",
-    justifyContent: "center",
+  walletRow: {
+    flexDirection: "row",
     alignItems: "center",
-    gap: 170,
-  },
-  summaryContents: {
+    backgroundColor: Colors.app.white,
+    padding: 14,
+    borderRadius: 16,
     width: "100%",
-    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  walletIcon: {
+    backgroundColor: Colors.app.screen,
+    borderRadius: 12,
+    width: 40,
+    height: 40,
     alignItems: "center",
-    gap: 10,
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  footer: {
+    padding: 20,
+  },
+  payButton: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    width: "100%",
+  },
+  payText: {
+    color: Colors.app.white,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 

@@ -41,6 +41,7 @@ export const Colors = {
     active: "#EDFDF8",
     lock: "#FEF1F2",
     loading: "#0099FF",
+    disabled: "#B0B0B0",
     checkBg: "#DBE7FE",
     bgPrimary: "#C0D5FD",
     courseBg: "#DBE7FE"

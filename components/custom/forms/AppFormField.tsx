@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { useFormikContext } from "formik";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { TextInputProps } from "react-native";
 import AppTextInput from "../AppTextInput";
 import ErrorMessage from "./ErrorMessage";
@@ -63,7 +63,7 @@ function AppFormField({
       ? errors[name].join(", ")
       : undefined) || apiErrorMessage;
 
-  // Ensure `touched[name]` is a boolean
+
   const isTouched = Boolean(touched[name]);
 
   useEffect(() => {

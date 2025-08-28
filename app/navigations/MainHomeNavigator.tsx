@@ -6,9 +6,9 @@ import React from "react";
 import { useScreen } from "../context/ScreenProvider";
 import BusinessesList from "../screens/investiment/BusinessesList";
 import CategoriesNavigator from "./CategoriesNavigator";
+import CoursesNavigator from "./CoursesNavigator";
 import HomeNavigator from "./HomeNavigator";
 import ProfileNavigator from "./ProfileNavigator";
-import CoursesNavigator from "./CoursesNavigator";
 
 type MainHomeNavigatorParamList = {
   BuyerProfileNavigator: undefined;
@@ -25,11 +25,9 @@ type MainHomeNavigatorParamList = {
   Profile: undefined;
 };
 
-interface MainHomeNavigatorProps {}
-
 const Tab = createBottomTabNavigator<MainHomeNavigatorParamList>();
 
-const MainHomeNavigator: React.FC<MainHomeNavigatorProps> = ({
+const MainHomeNavigator: React.FC = ({
   route,
 }: any) => {
   const { module } = useScreen();

@@ -1,19 +1,26 @@
-import { useUser } from "@/app/context/UserProvider";
 import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFormikContext } from "formik";
 import React, { FunctionComponent, useState } from "react";
-import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import * as Yup from "yup";
+import AppButton from "./AppButton";
 import AppText from "./AppText";
-import ErrorModal from "./ErrorModal";
 import AppForm from "./forms/AppForm";
 import AppFormOtpInput from "./forms/AppFormOtpInput";
-import SubmitButton from "./forms/SubmitButton";
 
 interface PinProps {
   isVisible: boolean;
   onClose: () => void;
-  onSubmitPin: (pin: string) => void; // <-- New
+  onSubmitPin: (pin: string) => void;
+  errorMessage?: string | null;
 }
 
 const validationSchema = Yup.object().shape({
@@ -22,19 +29,53 @@ const validationSchema = Yup.object().shape({
     .length(4, "PIN must be exactly 4 digits"),
 });
 
+// Inner component to access Formik context
+const PinFormContent: FunctionComponent<{
+  onPinComplete: (isComplete: boolean) => void;
+}> = ({ onPinComplete }) => {
+  const { values } = useFormikContext<{ pin: string }>();
+
+  // Check if PIN is complete whenever it changes
+  React.useEffect(() => {
+    const isComplete = values.pin && values.pin.length === 4;
+    onPinComplete(Boolean(isComplete));
+  }, [values.pin, onPinComplete]);
+
+  return (
+    <View style={styles.formContainer}>
+      <AppFormOtpInput name="pin" numberOfDigits={4} />
+    </View>
+  );
+};
+
 const Pin: FunctionComponent<PinProps> = ({
   isVisible,
   onClose,
   onSubmitPin,
+  errorMessage,
 }) => {
-  const [responseMessage, setResponseMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
-  const { user } = useUser();
+  const [isSubmitting, setIsSubmitting] = useState(false); // For future loading state implementation
+  const [isPinComplete, setIsPinComplete] = useState(false);
+  const [retryTrigger, setRetryTrigger] = useState(0); // Used to trigger form reset
 
   const handleSubmit = async ({ pin }: { pin: string }) => {
-    onSubmitPin(pin); // <-- Pass pin to parent
-    onClose(); // <-- Close the modal
+    setIsSubmitting(true);
+    try {
+      await onSubmitPin(pin);
+      // Don't close modal here - let parent component decide based on result
+    } catch {
+      // Error handling is done in parent component
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Clear PIN input when error occurs
+  React.useEffect(() => {
+    if (errorMessage) {
+      setRetryTrigger(prev => prev + 1); // This will reset the form
+    }
+  }, [errorMessage]);
 
   return (
     <Modal
@@ -44,45 +85,63 @@ const Pin: FunctionComponent<PinProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <View style={styles.nutch} />
-          {/* Close button at the top-left */}
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <MaterialCommunityIcons
-              name="close"
-              color={Colors.app.black}
-              size={24}
-            />
-          </TouchableOpacity>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.keyboardAvoidingView}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.nutch} />
 
-          <AppText style={styles.CODELabel}>Set your transfer Code</AppText>
-
-          {/* Form with marginTop */}
-          <AppForm
-            initialValues={{ pin: "" }}
-            onSubmit={handleSubmit}
-            validationSchema={validationSchema}
-          >
-            <View style={styles.formContainer}>
-              <AppFormOtpInput name="pin" numberOfDigits={4} />
-            </View>
-
-            {/* Submit button at the very bottom */}
-            <View style={styles.bottomSpacing}>
-              <SubmitButton
-                titleStyle={styles.titleStyle}
-                btnContainerStyle={styles.btn}
-                title="Submit Pin"
+            {/* Close button top-right */}
+            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+              <MaterialCommunityIcons
+                name="close"
+                color={Colors.app.black}
+                size={24}
               />
-            </View>
-          </AppForm>
-        </View>
+            </TouchableOpacity>
+
+            <AppText style={styles.CODELabel}>Set your Transfer Code</AppText>
+
+            {errorMessage && (
+              <View style={styles.errorContainer}>
+                <MaterialCommunityIcons
+                  name="alert-circle"
+                  color={Colors.app.failed}
+                  size={20}
+                />
+                <AppText style={styles.errorText}>{errorMessage}</AppText>
+              </View>
+            )}
+
+            <AppForm
+              key={retryTrigger} // This will reset the form when retry is triggered
+              initialValues={{ pin: "" }}
+              onSubmit={handleSubmit}
+              validationSchema={validationSchema}
+            >
+              <PinFormContent onPinComplete={setIsPinComplete} />
+
+              {/* Manual submit button as fallback */}
+              <View style={styles.bottomSpacing}>
+                <AppButton
+                  btnContainerStyle={[
+                    styles.btn,
+                    (!isPinComplete || isSubmitting) && { backgroundColor: Colors.app.disabled }
+                  ]}
+                  title={isSubmitting ? "Processing..." : "Continue"}
+                  titleStyle={styles.titleStyle}
+                  disabled={!isPinComplete || isSubmitting}
+                  onPress={() => {
+                    // Button press will be handled by Formik's built-in submission
+                    // This serves as a visual fallback for users
+                  }}
+                />
+              </View>
+            </AppForm>
+          </View>
+        </KeyboardAvoidingView>
       </View>
-      <ErrorModal
-        visible={isError}
-        onClose={() => setIsError(false)}
-        responseText={responseMessage || "Failed to buy data"}
-      />
     </Modal>
   );
 };
@@ -90,46 +149,48 @@ const Pin: FunctionComponent<PinProps> = ({
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-end", // push modal to bottom
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
+  keyboardAvoidingView: {
+    width: "100%",
+  },
   modalContainer: {
-    width: "95%",
+    width: "100%",
     backgroundColor: Colors.app.screen,
-    borderRadius: 15,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     padding: 20,
     alignItems: "center",
-    justifyContent: "center",
-    elevation: 10,
-    marginTop: 10,
+    justifyContent: "flex-start",
+    minHeight: "45%", // bottom sheet height
   },
   closeBtn: {
     position: "absolute",
-    left: 10,
+    right: 10,
     top: 20,
     zIndex: 10,
     padding: 10,
   },
   nutch: {
-    width: 120,
+    width: 60,
     height: 5,
-    backgroundColor: Colors.app.black,
+    backgroundColor: Colors.app.gray, // softer color
     borderRadius: 3,
+    marginBottom: 15,
   },
   CODELabel: {
     fontFamily: "DM Sans",
     fontStyle: "normal",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "500",
     color: Colors.app.black,
-    marginTop: 40,
+    marginBottom: 20,
   },
   formContainer: {
     width: "80%",
     alignItems: "center",
-    height: 300,
-    marginTop: 20,
+    marginTop: 10,
   },
   btn: {
     backgroundColor: Colors.app.primary,
@@ -143,10 +204,25 @@ const styles = StyleSheet.create({
     color: Colors.app.white,
   },
   bottomSpacing: {
-    position: "absolute",
-    bottom: 20, // Ensures the button is at the very bottom
+    marginTop: "auto", // pushes button to bottom
     width: "100%",
     alignItems: "center",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.app.lock, // light red background
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    width: "100%",
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.app.failed,
+    marginLeft: 8,
+    fontFamily: "DM Sans",
   },
 });
 
