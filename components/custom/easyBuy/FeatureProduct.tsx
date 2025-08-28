@@ -59,9 +59,9 @@ const FeatureProduct: FunctionComponent<FeatureProductProps> = ({
       ) : (
         <AutoScrollRow
           products={products}
-          speed={0.5} // tweak to taste; higher = faster
-          reverse={false} // set true to flip direction
-          spacing={20} // space between repeated groups
+          speed={0.5} 
+          reverse={false}
+          spacing={20}
           handleSelect={handleClick}
         />
       )}

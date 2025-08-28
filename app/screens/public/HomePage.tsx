@@ -33,8 +33,8 @@ import {
   View,
 } from "react-native";
 import FeatureProduct from "../../../components/custom/easyBuy/FeatureProduct";
-import { CourseType } from "../../../components/custom/eLearning/Course";
 import { GetCoursesResponse } from "../../../components/custom/eLearning/CourseList";
+import { CourseType } from "../../../components/custom/eLearning/StudentCourse";
 import List from "../../../components/custom/list/List";
 import easyBuy from "../../api/easyBuy";
 import elearning from "../../api/elearning";
@@ -392,7 +392,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      let updatedModule = "Home"; // fallback
+      let updatedModule = "Home";
       let updatedDashboard = moduleRouteMap.Home.dashboard;
 
       for (const [key, value] of Object.entries(moduleRouteMap)) {
