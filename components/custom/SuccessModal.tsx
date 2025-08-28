@@ -1,6 +1,6 @@
-import React, { FunctionComponent } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Colors } from "@/constants/Colors";
+import { FunctionComponent } from "react";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AppText from "./AppText";
 import RoundIcon from "./RoundIcon";
 
@@ -8,12 +8,14 @@ interface SuccessModalProps {
   onClose?: () => void;
   visible?: boolean;
   responseText: string;
+  onBack?: () => void; // optional custom back handler
 }
 
 const SuccessModal: FunctionComponent<SuccessModalProps> = ({
   onClose,
   visible,
   responseText,
+  onBack,
 }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -49,7 +51,7 @@ const SuccessModal: FunctionComponent<SuccessModalProps> = ({
           </Text>
 
           {/* Back Button */}
-          <TouchableOpacity style={styles.button} onPress={onClose}>
+          <TouchableOpacity style={styles.button} onPress={onBack || onClose}>
             <Text style={styles.buttonText}>Back</Text>
           </TouchableOpacity>
         </View>

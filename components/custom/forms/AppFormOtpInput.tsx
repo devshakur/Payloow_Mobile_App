@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { useFormikContext } from "formik";
-import React, { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
 
@@ -13,25 +13,42 @@ const AppFormOtpInput: FunctionComponent<AppFormOtpInputProps> = ({
   name,
   numberOfDigits,
 }) => {
-  const { setFieldValue, errors, touched, setFieldTouched } =
+  const { setFieldValue, errors, touched, setFieldTouched, submitForm } =
     useFormikContext<any>();
+  const otpRef = useRef<any>(null);
 
   const hasError = Boolean(errors?.[name]) && Boolean(touched?.[name]);
 
+ 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (otpRef.current) {
+        otpRef.current.focus();
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <OtpInput
+      ref={otpRef}
       numberOfDigits={numberOfDigits}
       focusColor={Colors.app.primary}
-      autoFocus={false}
+      autoFocus={false} // Disable built-in autoFocus, use our custom one
       hideStick={false}
       blurOnFilled={true}
       disabled={false}
       type="numeric"
-      secureTextEntry={false}
+      secureTextEntry={true}
       focusStickBlinkingDuration={500}
       onTextChange={(value) => {
         if (value.length === numberOfDigits) {
           setFieldTouched(name, true);
+          // Auto-submit when PIN is complete
+          setTimeout(() => {
+            submitForm();
+          }, 100); 
         }
 
         setFieldValue(name, value);
