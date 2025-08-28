@@ -49,7 +49,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeNavigator: FunctionComponent = () => {
   return (
     <>
-      <StatusBar style="dark" backgroundColor="transparent" translucent />
+      <StatusBar style="dark" translucent />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="HomePage" component={HomePage} />
         <Stack.Screen
