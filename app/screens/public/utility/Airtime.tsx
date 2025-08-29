@@ -1,4 +1,5 @@
 import routes from "@/app/navigations/routes";
+// Use DM Sans font for all text in this screen
 import AppText from "@/components/custom/AppText";
 import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
