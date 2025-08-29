@@ -36,8 +36,7 @@ const Airtime: FunctionComponent<AirtimeProps> = ({ navigation }) => {
       setSelectedNetwork("");
       setPhoneNumber("");
       setErrors({});
-      // @ts-ignore - clean the flag so it doesn't persist
-      route.params.reset = false;
+      // Do not mutate route.params, just reset state locally
     }
   }, [route?.params]);
 

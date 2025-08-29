@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
 import { Formik, FormikHelpers, FormikValues } from "formik";
+import { ReactNode } from "react";
 
 interface AppFormProps<T extends FormikValues> {
   initialValues: T;
@@ -23,7 +23,7 @@ function AppForm<T extends FormikValues>({
       onSubmit={onSubmit}
       validationSchema={validationSchema}
     >
-      {() => <>{children}</>}
+      {() => children}
     </Formik>
   );
 }
