@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "DMSans-Bold",
     color: Colors.app.dark,
   },
   section: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
     color: Colors.app.dark,
     marginBottom: 4,
   },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   networkText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
   },
   input: {
     backgroundColor: Colors.app.white,
@@ -271,6 +271,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,
+    fontFamily: "DMSans-Regular",
     color: Colors.app.dark,
   },
   amountRow: {
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
   },
   amountText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
     color: Colors.app.dark,
   },
   submitButton: {
@@ -301,15 +302,17 @@ const styles = StyleSheet.create({
   submitText: {
     color: Colors.app.white,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "DMSans-Bold",
   },
   error: {
     fontSize: 12,
+    fontFamily: "DMSans-Regular",
     color: 'red',
     marginTop: 4,
   },
   helperText: {
     fontSize: 11,
+    fontFamily: "DMSans-Regular",
     color: Colors.app.dark + "70",
     marginTop: 2,
   },

@@ -1,15 +1,14 @@
-import React from "react";
 import { useFormikContext } from "formik";
+import React from "react";
 import {
-  StyleSheet,
-  Dimensions,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
+    ActivityIndicator,
+    StyleProp,
+    TextStyle,
+    ViewStyle,
 } from "react-native";
 
-import AppButton from "../AppButton"; // Ensure this component supports the passed props
 import { Colors } from "@/constants/Colors";
+import AppButton from "../AppButton";
 
 interface SubmitButtonProps {
   title: string;
@@ -30,11 +29,14 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
 }) => {
   const { handleSubmit } = useFormikContext();
 
+  // Default loading animation if none provided
+  const defaultLoadingAnimation = <ActivityIndicator size="small" color={Colors.app.white} />;
+
   return (
     <AppButton
-      disabled={disabled}
+      disabled={disabled || loading}
       title={title}
-      loadingAnimation={loadingAnimation}
+      loadingAnimation={loadingAnimation || defaultLoadingAnimation}
       onPress={handleSubmit}
       titleStyle={titleStyle}
       btnContainerStyle={btnContainerStyle}
@@ -42,7 +44,5 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
     />
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default SubmitButton;

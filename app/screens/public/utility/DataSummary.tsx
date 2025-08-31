@@ -338,8 +338,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
-    fontFamily: "DMSans-Medium",
+    fontFamily: "DMSans-Bold",
     color: Colors.app.dark,
   },
   content: {
@@ -349,7 +348,6 @@ const styles = StyleSheet.create({
   },
   planName: {
     fontSize: 14,
-    fontWeight: "700",
     fontFamily: "DMSans-Bold",
     color: Colors.app.dark,
     textAlign: "center",
@@ -378,13 +376,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "500",
-    fontFamily: "DMSans-Regular",
+    fontFamily: "DMSans-Medium",
     color: Colors.app.dark,
   },
   value: {
     fontSize: 14,
-    fontWeight: "400",
     fontFamily: "DMSans-Regular",
     color: Colors.app.dark,
   },
@@ -421,8 +417,7 @@ const styles = StyleSheet.create({
   payText: {
     color: Colors.app.white,
     fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "DMSans-Medium",
+    fontFamily: "DMSans-Bold",
   },
 });
 

@@ -12,25 +12,25 @@ import ServiceContainer from "@/components/custom/utility/ServiceContainer";
 import { Colors } from "@/constants/Colors";
 import { Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useState,
+import {
+    FunctionComponent,
+    useCallback,
+    useEffect,
+    useState,
 } from "react";
 import {
-  Alert,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import RegisterTutorModal from "../../../../components/custom/eLearning/RegisterTutorModal";
 import utility from "../../../api/utility";
 import {
-  NetworkData,
-  useVariation,
+    NetworkData,
+    useVariation,
 } from "../../../context/VariationPlansProvider";
 
 type RootStackParamList = {
@@ -390,7 +390,7 @@ const TutorDashboard: FunctionComponent<TutorDashboardProps> = ({
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />

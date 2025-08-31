@@ -13,19 +13,19 @@ import BillIcon from "@/components/custom/utility/BillIcon";
 import { Colors } from "@/constants/Colors";
 import { Feather, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useState,
+import {
+    FunctionComponent,
+    useCallback,
+    useEffect,
+    useState,
 } from "react";
 import {
-  Alert,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { CourseType } from "../../../../components/custom/eLearning/Course";
 import List from "../../../../components/custom/list/List";
@@ -33,8 +33,8 @@ import ServiceContainer from "../../../../components/custom/utility/ServiceConta
 import elearning from "../../../api/elearning";
 import utility from "../../../api/utility";
 import {
-  NetworkData,
-  useVariation,
+    NetworkData,
+    useVariation,
 } from "../../../context/VariationPlansProvider";
 import routes from "../../../navigations/routes";
 
@@ -401,7 +401,7 @@ const StudentDashboard: FunctionComponent<StudentDashboardProps> = ({
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />

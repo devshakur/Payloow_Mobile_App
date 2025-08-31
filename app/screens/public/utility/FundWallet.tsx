@@ -5,11 +5,11 @@ import { Feather } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import React from "react";
 import {
-  ScrollView,
-  Share,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    Share,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useUser } from "../../../context/UserProvider";
 
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "DMSans-Bold",
     color: Colors.app.black,
     marginBottom: 10,
   },
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
     color: Colors.app.black,
   },
   buttonRow: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
   },
 });
 

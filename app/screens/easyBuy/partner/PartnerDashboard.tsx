@@ -9,25 +9,25 @@ import BillIcon from "@/components/custom/utility/BillIcon";
 import ServiceContainer from "@/components/custom/utility/ServiceContainer";
 import { Colors } from "@/constants/Colors";
 import {
-  Entypo,
-  Foundation,
-  MaterialCommunityIcons,
-  MaterialIcons,
+    Entypo,
+    Foundation,
+    MaterialCommunityIcons,
+    MaterialIcons,
 } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useState,
+import {
+    FunctionComponent,
+    useCallback,
+    useEffect,
+    useState,
 } from "react";
 import {
-  Alert,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import JoinEasyBuy from "../../../../components/custom/easyBuy/JoinEasyBuy";
 import List from "../../../../components/custom/list/List";
@@ -36,13 +36,13 @@ import userDetails from "../../../api/userDetails";
 import utility from "../../../api/utility";
 import { UserData, useUser } from "../../../context/UserProvider";
 import {
-  NetworkData,
-  useVariation,
+    NetworkData,
+    useVariation,
 } from "../../../context/VariationPlansProvider";
 import {
-  Product,
-  ProductDataWrapper,
-  ProductResponseData,
+    Product,
+    ProductDataWrapper,
+    ProductResponseData,
 } from "../buyer/BuyerDashboard";
 
 interface PartnerDashboardProps {
@@ -413,7 +413,7 @@ const PartnerDashboard: FunctionComponent<PartnerDashboardProps> = ({
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />

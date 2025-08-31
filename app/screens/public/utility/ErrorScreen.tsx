@@ -5,7 +5,7 @@ import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { StyleSheet, View } from "react-native";
 
 type ErrorScreenRouteParams = {
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   title: {
     textAlign: "center",
     color: Colors.app.black,
-    fontFamily: "DM Sans",
+    fontFamily: "DMSans-Bold",
     fontSize: 20,
     lineHeight: 30,
     fontWeight: "700",
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   subTitle: {
     textAlign: "center",
     color: Colors.app.dark,
-    fontFamily: "DM Sans",
+    fontFamily: "DMSans-Regular",
     fontSize: 14,
     lineHeight: 20,
     fontWeight: "400",
@@ -101,9 +101,8 @@ const styles = StyleSheet.create({
   titleStyle: {
     fontSize: 12,
     color: Colors.app.black,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
     fontStyle: "normal",
-    fontFamily: "DM Sans",
     lineHeight: 18,
   },
   btnContainer: {

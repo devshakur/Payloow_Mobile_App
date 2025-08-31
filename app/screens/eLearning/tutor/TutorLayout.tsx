@@ -157,7 +157,7 @@ const TutorLayout: FunctionComponent<{ children?: ReactNode }> = ({
           <BillIcon
             label="TV Sub"
             name="television"
-            onPress={() => navigation.navigate("Bills", { screen: "TvSub" })}
+            onPress={() => navigation.navigate("Bills", { screen: "TVSub" })}
           />
         </View>
 

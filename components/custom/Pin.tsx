@@ -21,6 +21,7 @@ interface PinProps {
   onClose: () => void;
   onSubmitPin: (pin: string) => void;
   errorMessage?: string | null;
+  loading?: boolean;
 }
 
 const validationSchema = Yup.object().shape({

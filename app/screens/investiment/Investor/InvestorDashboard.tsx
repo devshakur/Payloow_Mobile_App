@@ -14,20 +14,20 @@ import { Entypo, Feather, MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import AnalyticsCards from "../../../../components/custom/investiment/AnalyticsCards";
 import BecomeInvestor from "../../../../components/custom/investiment/BecomeInvestor";
 import investment from "../../../api/investment";
 import utility from "../../../api/utility";
 import {
-  NetworkData,
-  useVariation,
+    NetworkData,
+    useVariation,
 } from "../../../context/VariationPlansProvider";
 import { Investment } from "../MyInvestiment";
 import { Business } from "../Request";
@@ -430,7 +430,7 @@ const InvestorDashboard: FunctionComponent<InvestorDashboardProps> = ({
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />

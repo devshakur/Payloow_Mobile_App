@@ -97,7 +97,7 @@
 
 import { Colors } from "@/constants/Colors";
 import { useFormikContext } from "formik";
-import React, { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
@@ -161,7 +161,7 @@ const AppFormDropDownPickerWithSearch: FunctionComponent<
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 10,
+    marginVertical: 12,
     width: "100%",
   },
   dropdown: {
