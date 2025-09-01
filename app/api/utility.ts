@@ -109,13 +109,17 @@ const buyCable = (
   cableId: string,
   smartCardNumber: string,
   plan: string,
-  customerName: string
+  customerName: string,
+  transactionPin: string,
+  amount: number
 ) =>
-  client.post("/v1/payloow-bills/electricity", {
+  client.post("/v1/payloow-bills/cable-tv", {
     cablename: cableId,
     cableplan: plan,
     smart_card_number: smartCardNumber,
     customer_name: customerName,
+    transactionPin,
+    amount,
   });
 
 export default {

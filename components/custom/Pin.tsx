@@ -21,6 +21,7 @@ interface PinProps {
   onClose: () => void;
   onSubmitPin: (pin: string) => void;
   errorMessage?: string | null;
+  loading?: boolean;
 }
 
 const validationSchema = Yup.object().shape({
@@ -115,7 +116,7 @@ const Pin: FunctionComponent<PinProps> = ({
             )}
 
             <AppForm
-              key={retryTrigger} // This will reset the form when retry is triggered
+              key={retryTrigger}
               initialValues={{ pin: "" }}
               onSubmit={handleSubmit}
               validationSchema={validationSchema}
@@ -149,7 +150,7 @@ const Pin: FunctionComponent<PinProps> = ({
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    justifyContent: "flex-end", // push modal to bottom
+    justifyContent: "flex-end",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   keyboardAvoidingView: {
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     justifyContent: "flex-start",
-    minHeight: "45%", // bottom sheet height
+    minHeight: "45%",
   },
   closeBtn: {
     position: "absolute",
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
   nutch: {
     width: 60,
     height: 5,
-    backgroundColor: Colors.app.gray, // softer color
+    backgroundColor: Colors.app.gray,
     borderRadius: 3,
     marginBottom: 15,
   },

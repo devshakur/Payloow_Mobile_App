@@ -11,27 +11,27 @@ import ServiceContainer from "@/components/custom/utility/ServiceContainer";
 import { Colors } from "@/constants/Colors";
 import { Entypo, Foundation, MaterialIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useState,
+import {
+    FunctionComponent,
+    useCallback,
+    useEffect,
+    useState,
 } from "react";
 import {
-  Alert,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import List from "../../../../components/custom/list/List";
 import easyBuy from "../../../api/easyBuy";
 import userDetails from "../../../api/userDetails";
 import utility from "../../../api/utility";
 import {
-  NetworkData,
-  useVariation,
+    NetworkData,
+    useVariation,
 } from "../../../context/VariationPlansProvider";
 
 type RootStackParamList = {
@@ -454,7 +454,7 @@ const BuyerDashboard: FunctionComponent<BuyerDashboardProps> = ({
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />

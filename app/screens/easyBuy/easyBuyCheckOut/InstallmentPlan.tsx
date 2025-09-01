@@ -1,12 +1,12 @@
 import * as Linking from "expo-linking";
-import React, { FC, useState } from "react";
+import { FC, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import * as Yup from "yup";
 
 import AppText from "@/components/custom/AppText";
 import AppForm from "@/components/custom/forms/AppForm";
+import AppFormPicker from "@/components/custom/forms/AppFormDropDownPickerWithSearch";
 import AppFormField from "@/components/custom/forms/AppFormField";
-import AppFormPicker from "@/components/custom/forms/AppFormPicker";
 import SubmitButton from "@/components/custom/forms/SubmitButton";
 import List from "@/components/custom/list/List";
 import AppButton from "../../../../components/custom/AppButton";
@@ -207,7 +207,7 @@ const InstallmentPlan: FC = () => {
             placeholder="Amount"
             keyboardType="numeric"
           />
-          <AppFormPicker name="installmentPlan" items={installmentPlans} />
+          <AppFormPicker name="installmentPlan" data={installmentPlans} placeholder="Select Installment Plan" />
           <AppFormField
             name="numberOfInstallments"
             placeholder="Number of Installments"

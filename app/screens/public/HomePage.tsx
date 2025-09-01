@@ -513,7 +513,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({ navigation }) => {
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />

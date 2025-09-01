@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/Colors";
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { StyleSheet, View } from "react-native";
 import * as Yup from "yup";
 import { useForm } from "../../../app/context/FormContext";

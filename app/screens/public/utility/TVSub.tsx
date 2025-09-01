@@ -1,16 +1,24 @@
+import utility from "@/app/api/utility";
 import routes from "@/app/navigations/routes";
 import AppText from "@/components/custom/AppText";
 import AppForm from "@/components/custom/forms/AppForm";
+import AppFormSelectDropDown from "@/components/custom/forms/AppFormDropDownPickerWithSearch";
 import AppFormField from "@/components/custom/forms/AppFormField";
-import AppFormSelectDropDown from "@/components/custom/forms/AppFormPicker";
 import SubmitButton from "@/components/custom/forms/SubmitButton";
 import Screen from "@/components/custom/Screen";
 import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FunctionComponent } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { useFormikContext } from "formik";
+import { FunctionComponent, useEffect, useState } from "react";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import * as Yup from "yup";
+
+interface Plan {
+  id: number;
+  name: string;
+  amount: number;
+}
 
 type RootStackParamList = {
   TVSubSummary: {
@@ -30,44 +38,87 @@ interface TVSubProps {
 const validationSchema = Yup.object().shape({
   cable: Yup.string().required("Please select a cable provider"),
   plan: Yup.string().required("Please select a subscription plan"),
-  smartCardNumber: Yup.string()
+  smartCardNumber: Yup
+    .string()
     .required("Smart card number is required")
     .matches(/^[0-9]+$/, "Smart card number must contain only numbers")
     .min(10, "Smart card number must be at least 10 digits"),
 });
 
 const TVSub: FunctionComponent<TVSubProps> = ({ navigation }) => {
-  const cableProviders = [
-    { label: "DStv", value: "dstv" },
-    { label: "GOtv", value: "gotv" },
-    { label: "StarTimes", value: "startimes" },
-    { label: "NOVA", value: "nova" },
-  ];
+  const [cableProviders, setCableProviders] = useState<{ label: string; value: string }[]>([]);
+  const [allPlans, setAllPlans] = useState<{ [key: string]: Plan[] }>({});
+  const [loadingCables, setLoadingCables] = useState(true);
+  const [cablesError, setCablesError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
 
-  const subscriptionPlans = [
-    // DStv Plans
-    { label: "DStv Premium - ₦24,500", value: "dstv-premium", provider: "dstv", amount: 24500 },
-    { label: "DStv Compact Plus - ₦16,600", value: "dstv-compact-plus", provider: "dstv", amount: 16600 },
-    { label: "DStv Compact - ₦10,500", value: "dstv-compact", provider: "dstv", amount: 10500 },
-    { label: "DStv Confam - ₦6,200", value: "dstv-confam", provider: "dstv", amount: 6200 },
-    { label: "DStv Yanga - ₦3,500", value: "dstv-yanga", provider: "dstv", amount: 3500 },
-    
-    // GOtv Plans
-    { label: "GOtv Supa Plus - ₦6,400", value: "gotv-supa-plus", provider: "gotv", amount: 6400 },
-    { label: "GOtv Supa - ₦4,850", value: "gotv-supa", provider: "gotv", amount: 4850 },
-    { label: "GOtv Max - ₦3,950", value: "gotv-max", provider: "gotv", amount: 3950 },
-    { label: "GOtv Jolli - ₦2,950", value: "gotv-jolli", provider: "gotv", amount: 2950 },
-    { label: "GOtv Jinja - ₦1,900", value: "gotv-jinja", provider: "gotv", amount: 1900 },
-    
-    // StarTimes Plans
-    { label: "StarTimes Nova - ₦1,100", value: "startimes-nova", provider: "startimes", amount: 1100 },
-    { label: "StarTimes Basic - ₦1,850", value: "startimes-basic", provider: "startimes", amount: 1850 },
-    { label: "StarTimes Smart - ₦2,600", value: "startimes-smart", provider: "startimes", amount: 2600 },
-    { label: "StarTimes Classic - ₦3,200", value: "startimes-classic", provider: "startimes", amount: 3200 },
-    { label: "StarTimes Super - ₦5,500", value: "startimes-super", provider: "startimes", amount: 5500 },
-  ];
+  useEffect(() => {
+    const fetchCables = async () => {
+      try {
+        setLoadingCables(true);
+        setCablesError(null);
+        const response = await utility.getCables();
+        const responseData = response.data as {
+          success: boolean;
+          data: { cables: { [key: string]: any }; plans: { [key: string]: Plan[] } };
+        };
 
-  const handleSubmit = ({
+        if (responseData.success && responseData.data && responseData.data.cables) {
+          // Transform API response to dropdown format
+          const cableNames = Object.keys(responseData.data.cables);
+          const transformedCables = cableNames.map((name: string) => ({
+            label: name,
+            value: name,
+          }));
+          setCableProviders(transformedCables);
+          setAllPlans(responseData.data.plans);
+        } else {
+          setCablesError("Failed to load cable providers");
+        }
+      } catch (error) {
+        console.error("Error fetching cables:", error);
+        setCablesError("Failed to load cable providers");
+        // Fallback to static data if API fails
+        setCableProviders([
+          { label: "DStv", value: "DStv" },
+          { label: "GOtv", value: "GOtv" },
+          { label: "StarTimes", value: "Startimes" },
+          { label: "NOVA", value: "NOVA" },
+        ]);
+      } finally {
+        setLoadingCables(false);
+      }
+    };
+
+    fetchCables();
+  }, []);
+
+  const PlanSelector = () => {
+    const { values } = useFormikContext<{ cable: string }>();
+    const [filteredPlans, setFilteredPlans] = useState<{ label: string; value: string }[]>([]);
+
+    useEffect(() => {
+      if (values.cable && allPlans[values.cable]) {
+        const plans = allPlans[values.cable].map((plan: Plan) => ({
+          label: `${plan.name} - ₦${plan.amount}`,
+          value: plan.id.toString(),
+        }));
+        setFilteredPlans(plans);
+      } else {
+        setFilteredPlans([]);
+      }
+    }, [values.cable]);
+
+    return (
+      <AppFormSelectDropDown
+        name="plan"
+        data={filteredPlans}
+        placeholder="Select Subscription Plan"
+      />
+    );
+  };
+
+  const handleSubmit = async ({
     cable,
     plan,
     smartCardNumber,
@@ -76,18 +127,33 @@ const TVSub: FunctionComponent<TVSubProps> = ({ navigation }) => {
     plan: string;
     smartCardNumber: string;
   }) => {
-    // Find the selected plan details
-    const selectedPlan = subscriptionPlans.find(p => p.value === plan);
-    const amount = selectedPlan?.amount || 0;
-    const planLabel = selectedPlan?.label || plan;
+    setValidating(true);
+    try {
+      const res = await utility.validateCableNumber(smartCardNumber, cable);
+      if (res.ok && (res.data as any).success) {
+        const customerName = (res.data as any).data.name;
+        // Find the selected plan details
+        const selectedProviderPlans = allPlans[cable] || [];
+        const selectedPlan = selectedProviderPlans.find((p) => p.id.toString() === plan);
+        const amount = selectedPlan?.amount || 0;
+        const planLabel = selectedPlan?.name || plan;
 
-    navigation.navigate(routes.TV_SUB_SUMMARY, {
-      cable,
-      plan: planLabel,
-      smartCardNumber,
-      customerName: "John Doe", // Mock customer name
-      amount,
-    });
+        navigation.navigate(routes.TV_SUB_SUMMARY, {
+          cable,
+          plan: planLabel,
+          smartCardNumber,
+          customerName,
+          amount,
+        });
+      } else {
+        Alert.alert("Validation Failed", (res.data as any).message || "Invalid smart card number.");
+      }
+    } catch (error) {
+      console.error("Validation Error:", error);
+      Alert.alert("Error", "An unexpected error occurred during validation.");
+    } finally {
+      setValidating(false);
+    }
   };
 
   return (
@@ -106,7 +172,7 @@ const TVSub: FunctionComponent<TVSubProps> = ({ navigation }) => {
           </TouchableOpacity>
           <AppText style={styles.title}>TV Subscription</AppText>
           <TouchableOpacity onPress={() => navigation.navigate(routes.TRANSACTIONS)}>
-            <AppText style={styles.history}>History</AppText>
+            <MaterialCommunityIcons name="history" size={22} color={Colors.app.primary} />
           </TouchableOpacity>
         </View>
 
@@ -124,8 +190,12 @@ const TVSub: FunctionComponent<TVSubProps> = ({ navigation }) => {
               <AppText style={styles.label}>Select Cable Provider</AppText>
               <AppFormSelectDropDown
                 name="cable"
-                items={cableProviders}
+                data={cableProviders}
+                placeholder={loadingCables ? "Loading cable providers..." : "Select Cable Provider"}
               />
+              {cablesError && (
+                <AppText style={styles.errorText}>{cablesError}</AppText>
+              )}
             </View>
 
             <View style={styles.section}>
@@ -140,16 +210,14 @@ const TVSub: FunctionComponent<TVSubProps> = ({ navigation }) => {
 
             <View style={styles.section}>
               <AppText style={styles.label}>Select Subscription Plan</AppText>
-              <AppFormSelectDropDown
-                name="plan"
-                items={subscriptionPlans}
-              />
+              <PlanSelector />
             </View>
 
             <SubmitButton
               title="Continue"
               btnContainerStyle={styles.submitButton}
               titleStyle={styles.submitButtonText}
+              loading={validating}
             />
           </View>
         </AppForm>
@@ -175,7 +243,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "700",
+    fontFamily: "DMSans-Bold",
     color: Colors.app.dark,
     textAlign: "center",
     flex: 1,
@@ -183,29 +251,36 @@ const styles = StyleSheet.create({
   history: {
     color: Colors.app.primary,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
   },
   formContainer: {
     flex: 1,
-    gap: 20,
+    gap: 12,
   },
   section: {
-    marginBottom: 10,
+    marginBottom: 4,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontFamily: "DMSans-Medium",
     color: Colors.app.dark,
     marginBottom: 8,
   },
   submitButton: {
     backgroundColor: Colors.app.primary,
     marginTop: 20,
+    width: "100%",
   },
   submitButtonText: {
     color: Colors.app.white,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "DMSans-Bold",
+  },
+  errorText: {
+    color: Colors.app.failed,
+    fontSize: 14,
+    fontFamily: "DMSans-Regular",
+    marginTop: 5,
   },
 });
 

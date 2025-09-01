@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/Colors";
-import React, { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import * as Yup from "yup";
 import payment from "../../../app/api/payment";

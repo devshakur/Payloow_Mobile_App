@@ -14,7 +14,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, {
+import {
   FunctionComponent,
   useCallback,
   useEffect,
@@ -420,7 +420,7 @@ const BillsDashboard: FunctionComponent<BillsDashboardProps> = ({
             name="television"
             onPress={() =>
               navigation.navigate("Bills", {
-                screen: "TvSub",
+                screen: "TVSub",
               } as never)
             }
           />
@@ -448,7 +448,7 @@ const BillsDashboard: FunctionComponent<BillsDashboardProps> = ({
             }
             leftTopLabel="Easy Buy"
             leftTopLabelStyle={{
-              fontWeight: "900",
+              fontFamily: "DMSans-Bold",
             }}
             leftBottomLabel="Shop on Payloow now"
             onPress={() => switchModule("Easybuy")}
@@ -471,7 +471,7 @@ const BillsDashboard: FunctionComponent<BillsDashboardProps> = ({
             }
             leftTopLabel="E-Learning"
             leftTopLabelStyle={{
-              fontWeight: "900",
+              fontFamily: "DMSans-Bold",
             }}
             leftBottomLabel="Learn or tutor with us"
             onPress={() => switchModule("eLearning")}
@@ -494,7 +494,7 @@ const BillsDashboard: FunctionComponent<BillsDashboardProps> = ({
             }
             leftTopLabel="Investment"
             leftTopLabelStyle={{
-              fontWeight: "900",
+              fontFamily: "DMSans-Bold",
             }}
             leftBottomLabel="Islamic investment at your fingertips"
             onPress={() => switchModule("Investment")}
@@ -551,7 +551,7 @@ const BillsDashboard: FunctionComponent<BillsDashboardProps> = ({
                   leftTopLabel={item.narration}
                   leftTopLabelStyle={{
                     color: Colors.app.dark,
-                    fontWeight: "900",
+                    fontFamily: "DMSans-Bold",
                     fontSize: 12,
                     width: 120,
                   }}
@@ -588,7 +588,7 @@ const BillsDashboard: FunctionComponent<BillsDashboardProps> = ({
                   rightTopLabel={formatAmount(item.amount)}
                   rightTopLabelStyle={{
                     color: Colors.app.dark,
-                    fontWeight: "900",
+                    fontFamily: "DMSans-Bold",
                     fontSize: 12,
                   }}
                 />
@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
 
   historyText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontFamily: "DMSans-Medium",
     color: Colors.app.primary,
   },
 
@@ -667,15 +667,14 @@ const styles = StyleSheet.create({
   viewAll: {
     color: Colors.app.primary,
     fontSize: 14,
-    fontWeight: "400",
+    fontFamily: "DMSans-Regular",
     fontStyle: "normal",
     lineHeight: 20,
   },
   bottomContentsTitle: {
     color: Colors.app.black,
     fontSize: 18,
-    fontWeight: "800",
-    fontFamily: "DM Sans",
+    fontFamily: "DMSans-Bold",
     lineHeight: 28,
   },
   bottomContentsTitleContainer: {
