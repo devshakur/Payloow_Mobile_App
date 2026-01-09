@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Payloow",
-    "slug": "Payloow",
+    "name": "devsahkur",
+    "slug": "devshakur-personal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -56,17 +56,14 @@
     "experiments": {
       "typedRoutes": true
     },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "936926a0-2360-4af2-ba6d-4b6edea6f8d1"
-      }
-    },
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "updates": {
-      "url": "https://u.expo.dev/936926a0-2360-4af2-ba6d-4b6edea6f8d1"
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6727195c-ba7b-4291-8a1d-5528c23cca12"
+      }
     }
   }
 }

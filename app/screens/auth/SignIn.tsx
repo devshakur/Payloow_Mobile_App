@@ -76,6 +76,7 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
         const result = await authApi.login(sanitizedContact, password);
         const responseData = result.data as AuthResponse;
         if (!result.ok) {
+             auth.logIn(responseData);
           setErrorMessage("Incorrect email / phone or password");
           setLoading(false);
           return;
@@ -92,6 +93,20 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
+  };
+
+  const handleDemoLogin = () => {
+    // Create a mock user for demo
+    const mockUser = {
+      user: {
+        _id: "demo-user-123",
+        phone: 2348012345678,
+        role: "debtor"
+      }
+    };
+    
+    // Use saveData to set user in context and bypass API
+    auth.saveData(mockUser);
   };
 
   return (
@@ -198,6 +213,9 @@ const SignIn: FunctionComponent<SignInProps> = ({ navigation }) => {
                 <ActivityIndicator size="small" color={Colors.app.white} />
               }
             />
+            <TouchableOpacity onPress={handleDemoLogin}>
+             <AppText style={styles.siginInText}>Demo login</AppText>
+            </TouchableOpacity>
           </AppForm>
           <View style={styles.bottomContainer}>
             <AppText style={styles.bottomText}>Don&apos;t have an account?</AppText>
